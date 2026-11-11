@@ -1,47 +1,112 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FITFLOW - Move. Progress. Repeat.</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#f3efe7">
+    <title>FITFLOW | Your Fitness Space</title>
+    <link rel="stylesheet" href="./style.css?v=3">
+    <script src="./script.js?v=3" defer></script>
 </head>
 <body>
-    <header class="header">
-        <div class="logo-area" onclick="switchTab('home')">
-            <h1>FITFLOW</h1>
-            <span class="badge">v1.2</span>
-        </div>
-        <div class="header-right">
-            <div class="streak-badge">
-                <svg class="icon-fire" viewBox="0 0 20 20"><path fill="currentColor" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.603 1.768-.84 2.734C8.29 8.1 7.842 9.49 7.42 10.74c-.423 1.25-.806 2.37-1.127 3.264a27.18 27.18 0 01-.652 1.705 1 1 0 001.838.782c.162-.38.358-.854.582-1.398.32-.78.69-1.8 1.09-2.98.41-1.22.86-2.58 1.34-3.95.23-.66.47-1.32.72-1.97.23-.59.45-1.16.66-1.69.19-.48.37-.93.53-1.33.15-.38.28-.7.39-.95a1 1 0 00-.385-1.255z"/></svg>
-                <span id="header-streak">4 Days</span>
+
+    <div class="app-shell">
+
+        <!-- HEADER -->
+        <header class="topbar">
+            <button class="logo" data-page="home">
+                FITFLOW
+            </button>
+
+            <div class="header-right">
+                <span class="version">V2.0</span>
+                <span class="streak-pill">
+                    🔥 <span id="header-streak">0 days</span>
+                </span>
+                <button class="avatar" data-page="profile">
+                    T
+                </button>
             </div>
-            <div class="profile-thumb" onclick="switchTab('profile')">T</div>
-        </div>
-    </header>
+        </header>
 
-    <main id="app-container">
-        <!-- Dynamic views injected via script.js -->
-    </main>
+        <!-- MAIN PAGE -->
+        <main id="app" class="main-content">
 
-    <nav class="bottom-nav">
-        <button onclick="switchTab('home')" id="nav-home" class="nav-item active">
-            <span>Home</span>
-        </button>
-        <button onclick="switchTab('workouts')" id="nav-workouts" class="nav-item">
-            <span>Workouts</span>
-        </button>
-        <button onclick="switchTab('progress')" id="nav-progress" class="nav-item">
-            <span>Progress</span>
-        </button>
-        <button onclick="switchTab('profile')" id="nav-profile" class="nav-item">
-            <span>Profile</span>
-        </button>
-    </nav>
+            <!-- Visible fallback if JS does not load -->
+            <section class="page">
+                <p class="eyebrow">YOUR PERSONAL FITNESS SPACE</p>
+                <h1>Move at your pace.</h1>
+                <p class="subtitle">
+                    A little progress every day adds up.
+                </p>
 
-    <script src="script.js"></script>
+                <div class="card">
+                    <h2>Today's progress</h2>
+                    <div class="progress-overview">
+                        <div class="progress-circle">
+                            <span>0%</span>
+                        </div>
+                        <div class="progress-details">
+                            <p>✅ 0 workouts completed</p>
+                            <p>⏱ 0 minutes trained</p>
+                            <p>🔥 0-day streak</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-heading">
+                    <h2>Recommended for you</h2>
+                </div>
+
+                <div class="card">
+                    <p class="eyebrow">STRENGTH · BEGINNER</p>
+                    <h3>Full Body Strength</h3>
+                    <p class="muted">
+                        6 exercises · 45 seconds each
+                    </p>
+                    <p class="muted">
+                        Your workout is ready.
+                    </p>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav" aria-label="Main navigation">
+
+            <button class="nav-button active"
+                    data-page="home">
+                <span class="nav-icon">⌂</span>
+                <span>Home</span>
+            </button>
+
+            <button class="nav-button"
+                    data-page="workouts">
+                <span class="nav-icon">▤</span>
+                <span>Workouts</span>
+            </button>
+
+            <button class="nav-button"
+                    data-page="progress">
+                <span class="nav-icon">▥</span>
+                <span>Progress</span>
+            </button>
+
+            <button class="nav-button"
+                    data-page="profile">
+                <span class="nav-icon">♙</span>
+                <span>Profile</span>
+            </button>
+
+        </nav>
+
+    </div>
+
+    <noscript>
+        JavaScript is required to start workouts and track progress.
+    </noscript>
+
 </body>
 </html>
