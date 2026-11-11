@@ -1,0 +1,59 @@
+/* FitFlow Test CSS Stylesheet */
+body {
+    background-color: #F4EFE6;
+    color: #2C2A29;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #FAF8F5;
+    border: 1px solid #E8DEC9;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    max-width: 400px;
+    width: 100%;
+}
+
+h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    color: #3D3323;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #5A4E38;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+button {
+    background-color: #6E7E44;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #586535;
+}
+
+#output {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #5A4E38;
+    font-weight: 500;
+}
