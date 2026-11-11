@@ -1,59 +1,56 @@
-/* FitFlow Test CSS Stylesheet */
+
 body {
     background-color: #F4EFE6;
     color: #2C2A29;
     font-family: 'Inter', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+
+    background-image:
+        linear-gradient(
+            to right,
+            rgba(200, 180, 140, 0.1) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            to bottom,
+            rgba(200, 180, 140, 0.1) 1px,
+            transparent 1px
+        );
+
+    background-size: 24px 24px;
 }
 
-.container {
-    background-color: #FAF8F5;
-    border: 1px solid #E8DEC9;
-    padding: 40px;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    max-width: 400px;
-    width: 100%;
-}
-
-h1 {
+h1, h2, h3, .font-serif {
     font-family: 'Playfair Display', Georgia, serif;
-    color: #3D3323;
-    margin-bottom: 8px;
-    font-style: italic;
 }
 
-.subtitle {
-    font-size: 14px;
-    color: #5A4E38;
-    margin-bottom: 24px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
 
-button {
-    background-color: #6E7E44;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
+::-webkit-scrollbar-track {
+    background: #E8DEC9;
 }
 
-button:hover {
-    background-color: #586535;
+::-webkit-scrollbar-thumb {
+    background: #C7B484;
+    border-radius: 3px;
 }
 
-#output {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #5A4E38;
-    font-weight: 500;
+/* Smooth page transitions */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
