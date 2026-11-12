@@ -2,111 +2,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f3efe7">
-    <title>FITFLOW | Your Fitness Space</title>
-    <link rel="stylesheet" href="./style.css?v=3">
-    <script src="./script.js?v=3" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FITFLOW | Move. Progress. Repeat.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
 
-    <div class="app-shell">
+<header class="topbar">
+  <div class="logo">FITFLOW<span>✳</span></div>
+  <nav id="navigation" class="hidden">
+    <button data-page="home">Home</button>
+    <button data-page="workouts">Workouts</button>
+    <button data-page="progress">Progress</button>
+    <button data-page="profile">Profile</button>
+  </nav>
+  <span class="tagline">Move. Progress. Repeat.</span>
+</header>
 
-        <!-- HEADER -->
-        <header class="topbar">
-            <button class="logo" data-page="home">
-                FITFLOW
-            </button>
+<main>
 
-            <div class="header-right">
-                <span class="version">V2.0</span>
-                <span class="streak-pill">
-                    🔥 <span id="header-streak">0 days</span>
-                </span>
-                <button class="avatar" data-page="profile">
-                    T
-                </button>
-            </div>
-        </header>
+  <!-- WELCOME -->
+  <section id="welcome" class="page active">
+    <div class="welcome-layout">
+      <div class="welcome-content">
+        <p class="eyebrow">MOVEMENT THAT FITS YOUR LIFE</p>
+        <h1>Make every <em>minute</em> count.</h1>
+        <p class="intro">Don't have an hour to work out? You don't need one. FITFLOW helps you turn small pockets of free time into meaningful movement.</p>
+        <button class="primary" id="getStarted">Get Started →</button>
+        <p class="muted">Your time. Your goals. Your pace.</p>
+      </div>
+      <div class="welcome-art">
+        <div class="art-circle">✳</div>
+        <span>STRONGER THAN YESTERDAY</span>
+      </div>
+    </div>
+  </section>
 
-        <!-- MAIN PAGE -->
-        <main id="app" class="main-content">
+  <!-- LOGIN -->
+  <section id="login" class="page narrow">
+    <p class="eyebrow">WELCOME TO FITFLOW</p>
+    <h1>Let's get <em>moving.</em></h1>
+    <p class="muted">Enter your email to create or access your demo profile.</p>
+    <form id="loginForm" class="panel">
+      <label>Email address</label>
+      <input type="email" id="email" placeholder="you@example.com" required>
+      <button class="primary full" type="submit">Continue →</button>
+    </form>
+    <p class="small muted">Demo mode: your data is saved in this browser. This is not secure email authentication.</p>
+  </section>
 
-            <!-- Visible fallback if JS does not load -->
-            <section class="page">
-                <p class="eyebrow">YOUR PERSONAL FITNESS SPACE</p>
-                <h1>Move at your pace.</h1>
-                <p class="subtitle">
-                    A little progress every day adds up.
-                </p>
+  <!-- ONBOARDING -->
+  <section id="setup" class="page narrow">
+    <p class="eyebrow">YOUR FITNESS, YOUR WAY</p>
+    <h1>Let's make it <em>personal.</em></h1>
+    <p class="muted">Tell us what works for you so we can find short workouts that fit your day.</p>
 
-                <div class="card">
-                    <h2>Today's progress</h2>
-                    <div class="progress-overview">
-                        <div class="progress-circle">
-                            <span>0%</span>
-                        </div>
-                        <div class="progress-details">
-                            <p>✅ 0 workouts completed</p>
-                            <p>⏱ 0 minutes trained</p>
-                            <p>🔥 0-day streak</p>
-                        </div>
-                    </div>
-                </div>
+    <form id="setupForm" class="panel form-stack">
+      <label for="userName">What should we call you?</label>
+      <input id="userName" required placeholder="Your first name">
 
-                <div class="section-heading">
-                    <h2>Recommended for you</h2>
-                </div>
+      <label for="goal">Your main fitness goal</label>
+      <select id="goal" required>
+        <option value="strength">Build strength</option>
+        <option value="cardio">Improve endurance</option>
+        <option value="mobility">Improve flexibility and mobility</option>
+        <option value="general">Stay active and healthy</option>
+      </select>
 
-                <div class="card">
-                    <p class="eyebrow">STRENGTH · BEGINNER</p>
-                    <h3>Full Body Strength</h3>
-                    <p class="muted">
-                        6 exercises · 45 seconds each
-                    </p>
-                    <p class="muted">
-                        Your workout is ready.
-                    </p>
-                </div>
-            </section>
+      <label for="fitnessLevel">Current fitness level</label>
+      <select id="fitnessLevel">
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
 
-        </main>
+      <label for="favorite">Favorite workout type</label>
+      <select id="favorite">
+        <option value="any">Surprise me</option>
+        <option value="strength">Strength training</option>
+        <option value="cardio">Cardio</option>
+        <option value="mobility">Yoga and mobility</option>
+        <option value="core">Core workouts</option>
+      </select>
 
-        <!-- BOTTOM NAVIGATION -->
-        <nav class="bottom-nav" aria-label="Main navigation">
+      <label for="minutes">How much time do you usually have?</label>
+      <select id="minutes">
+        <option value="5">5 minutes</option>
+        <option value="10" selected>10 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="20">20 minutes</option>
+      </select>
 
-            <button class="nav-button active"
-                    data-page="home">
-                <span class="nav-icon">⌂</span>
-                <span>Home</span>
-            </button>
+      <label for="limitations">Health concerns or exercise limitations</label>
+      <select id="limitations">
+        <option value="none">None reported</option>
+        <option value="knees">Knee discomfort</option>
+        <option value="back">Back discomfort</option>
+        <option value="lowimpact">Prefer low-impact exercise</option>
+        <option value="other">Other / need individual guidance</option>
+      </select>
 
-            <button class="nav-button"
-                    data-page="workouts">
-                <span class="nav-icon">▤</span>
-                <span>Workouts</span>
-            </button>
+      <p class="small muted">These answers guide general workout filtering, not medical advice. Consult a qualified professional about exercise restrictions.</p>
 
-            <button class="nav-button"
-                    data-page="progress">
-                <span class="nav-icon">▥</span>
-                <span>Progress</span>
-            </button>
+      <button type="submit" class="primary full">Build My Plan →</button>
+    </form>
+  </section>
 
-            <button class="nav-button"
-                    data-page="profile">
-                <span class="nav-icon">♙</span>
-                <span>Profile</span>
-            </button>
+  <!-- DASHBOARD -->
+  <section id="home" class="page">
+    <p class="eyebrow">YOUR DAILY MOMENT ✳</p>
+    <h1>Good morning, <em id="greetingName">Friend</em>.</h1>
+    <p class="muted">You don't need an hour. You just need a moment.</p>
 
-        </nav>
-
+    <div class="hero">
+      <div>
+        <p class="eyebrow">A LITTLE TIME IS ENOUGH</p>
+        <h2>Stronger than <em>yesterday.</em></h2>
+        <p>Got a spare 10 minutes? Turn them into something good.</p>
+        <button class="primary" id="findWorkout">Find My Workout →</button>
+      </div>
+      <div class="hero-decoration">✳</div>
     </div>
 
-    <noscript>
-        JavaScript is required to start workouts and track progress.
-    </noscript>
+    <div class="dashboard-grid">
+      <div class="panel">
+        <div class="section-heading">
+          <h3>Made for your moment</h3>
+          <span class="eyebrow">RECOMMENDED</span>
+        </div>
+        <div class="recommended">
+          <div class="workout-illustration" id="recommendIcon">✳</div>
+          <div>
+            <p class="eyebrow" id="recommendType">STRENGTH</p>
+            <h3 id="recommendTitle">Full Body Reset</h3>
+            <p class="muted" id="recommendDetails">10 min · No equipment</p>
+            <button class="primary small-button" id="startRecommended">Start workout →</button>
+            <button class="text-button" id="swapRecommended">Try another ↻</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Today's progress</h3>
+        <div class="progress-display">
+          <div class="ring" id="progressRing"><span id="progressPercent">0%</span></div>
+          <div>
+            <h3 id="progressMinutes">0 / 10 min</h3>
+            <p class="muted">Every minute counts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="panel"><p class="eyebrow">TOTAL WORKOUTS</p><h2 id="homeWorkouts">0</h2></div>
+      <div class="panel"><p class="eyebrow">ACTIVE MINUTES</p><h2 id="homeMinutes">0</h2></div>
+      <div class="panel"><p class="eyebrow">CURRENT STREAK</p><h2 id="homeStreak">0 days</h2></div>
+    </div>
+  </section>
+
+  <!-- WORKOUT EXPLORER -->
+  <section id="workouts" class="page">
+    <p class="eyebrow">FIND YOUR FLOW</p>
+    <h1>Explore <em>workouts.</em></h1>
+    <p class="muted">Tell us how much time you have, and we'll find something that fits.</p>
+
+    <div class="panel filter-panel">
+      <label for="availableTime">I have this many minutes:</label>
+      <select id="availableTime">
+        <option value="5">5 minutes</option>
+        <option value="10">10 minutes</option>
+        <option value="15">15 minutes</option>
+        <option value="20">20 minutes</option>
+      </select>
+      <button class="primary" id="updateWorkouts">Find workouts →</button>
+    </div>
+
+    <div class="filters">
+      <button class="chip selected" data-filter="all">All</button>
+      <button class="chip" data-filter="strength">Strength</button>
+      <button class="chip" data-filter="cardio">Cardio</button>
+      <button class="chip" data-filter="mobility">Mobility</button>
+      <button class="chip" data-filter="core">Core</button>
+    </div>
+
+    <div id="workoutList" class="workout-grid"></div>
+  </section>
+
+  <!-- ACTIVE WORKOUT -->
+  <section id="session" class="page narrow">
+    <button class="text-button" id="exitWorkout">← Exit workout</button>
+    <p class="eyebrow centered">YOUR MOMENT OF MOVEMENT</p>
+    <h1 class="centered" id="sessionTitle">Full Body Reset</h1>
+    <p class="muted centered" id="sessionStep">Exercise 1 of 3</p>
+
+    <div class="session-art" id="exerciseIcon">✳</div>
+    <h2 class="centered" id="exerciseName">Squats</h2>
+    <p class="muted centered" id="exerciseInfo">Move slowly and comfortably.</p>
+
+    <div class="timer" id="timerDisplay">00:45</div>
+
+    <div class="session-controls">
+      <button class="secondary" id="pauseWorkout">Pause</button>
+      <button class="primary" id="nextExercise">Next →</button>
+    </div>
+    <button class="text-button centered-button" id="finishWorkout">Finish workout</button>
+  </section>
+
+  <!-- PROGRESS -->
+  <section id="progress" class="page">
+    <p class="eyebrow">SMALL STEPS, BIG CHANGE</p>
+    <h1>Your <em>progress.</em></h1>
+    <p class="muted">Consistency matters more than perfection.</p>
+
+    <div class="stats-grid">
+      <div class="panel"><p class="eyebrow">WORKOUTS COMPLETED</p><h2 id="totalWorkouts">0</h2></div>
+      <div class="panel"><p class="eyebrow">TOTAL ACTIVE TIME</p><h2 id="totalMinutes">0 min</h2></div>
+      <div class="panel"><p class="eyebrow">CURRENT STREAK</p><h2 id="totalStreak">0 days</h2></div>
+    </div>
+
+    <div class="panel">
+      <h3>Workout history</h3>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile" class="page narrow">
+    <p class="eyebrow">YOUR SPACE</p>
+    <h1>My <em>profile.</em></h1>
+
+    <div class="panel">
+      <div class="avatar">✳</div>
+      <h2 id="profileName">Your Name</h2>
+      <p class="muted" id="profileEmail"></p>
+    </div>
+
+    <div class="panel form-stack">
+      <h3>Your preferences</h3>
+      <p id="profileSummary"></p>
+      <button class="secondary full" id="editProfile">Edit goals & preferences</button>
+      <button class="secondary full" id="logout">Switch account</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>FITFLOW ✳</span>
+  <span>Move. Progress. Repeat.</span>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 </body>
 </html>
