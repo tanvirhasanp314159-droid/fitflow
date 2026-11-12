@@ -1,4 +1,79 @@
 
+import { createClient } from
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+// Supabase connection
+const supabase = createClient(
+  'https://vreefjwltnbdkhlcngpy.supabase.co',
+  'sb_publishable_MVNHnLLLPKa0yVaL_RQ9WQ_kH6Ph1K-'
+);
+
+
+// Sign up
+async function signUp(email, password) {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+
+// Login
+async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+
+// Logout
+async function logout() {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) throw error;
+}
+
+
+// Save workout
+async function saveWorkout(name, duration) {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Please log in first.');
+
+  const { error } = await supabase
+    .from('workouts')
+    .insert({
+      user_id: user.id,
+      workout_name: name,
+      duration: duration
+    });
+
+  if (error) throw error;
+}
+
+
+// Load workouts
+async function loadWorkouts() {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) throw new Error('Please log in first.');
+
+  const { data, error } = await supabase
+    .from('workouts')
+    .select('*')
+    .eq('user_id', user.id);
+
+  if (error) throw error;
+
+  return data;
+}
 "use strict";
 
 // FITFLOW - Frontend demo
