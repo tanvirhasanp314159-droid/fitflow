@@ -42,17 +42,49 @@
     </div>
   </section>
 
+  
   <!-- LOGIN -->
   <section id="login" class="page narrow">
     <p class="eyebrow">WELCOME TO FITFLOW</p>
     <h1>Let's get <em>moving.</em></h1>
-    <p class="muted">Enter your email to create or access your demo profile.</p>
-    <form id="loginForm" class="panel">
-      <label>Email address</label>
-      <input type="email" id="email" placeholder="you@example.com" required>
-      <button class="primary full" type="submit">Continue →</button>
+    <p class="muted">Sign in or create your FITFLOW account.</p>
+  
+    <form id="loginForm" class="panel form-stack">
+  
+      <label for="email">Email address</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        required
+      >
+  
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        minlength="6"
+        required
+      >
+  
+      <button class="primary full" type="submit" id="loginButton">
+        Sign In →
+      </button>
+  
+      <button class="secondary full" type="button" id="signupButton">
+        Create Account
+      </button>
+  
+      <p class="small muted" id="authMessage"></p>
+  
     </form>
-    <p class="small muted">Demo mode: your data is saved in this browser. This is not secure email authentication.</p>
+  
+    <p class="small muted">
+      Your account and workout data are securely connected to Supabase.
+    </p>
   </section>
 
   <!-- ONBOARDING -->
