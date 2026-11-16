@@ -1,217 +1,232 @@
 
-"use strict";
-
-// FITFLOW - Frontend demo
-// Data is stored locally in the user's browser.
-// No backend, real email authentication, or live AI API.
-
-const $ = id => document.getElementById(id);
+// ============================================
+// FITFLOW - WORKOUT LIBRARY
+// ============================================
 
 const workouts = [
   {
     id: "strength5",
-    title: "Quick Strength Boost",
-    type: "strength",
+    title: "Quick Strength Reset",
+    type: "Strength",
     minutes: 5,
-    level: "beginner",
-    icon: "✳",
+    level: "Beginner",
     lowImpact: true,
+    icon: "💪",
     exercises: [
-      ["Wall Push-Ups", 60, "Keep your body straight."],
-      ["Chair Squats", 60, "Use a stable chair."],
-      ["Standing Calf Raises", 60, "Raise your heels slowly."],
-      ["Wall Push-Ups", 60, "Control each repetition."],
-      ["Gentle March", 60, "Finish at a comfortable pace."]
-    ]
-  },
-  {
-    id: "strength10",
-    title: "Full Body Reset",
-    type: "strength",
-    minutes: 10,
-    level: "beginner",
-    icon: "✳",
-    lowImpact: true,
-    exercises: [
-      ["Chair Squats", 120, "Sit back slowly into a stable chair."],
-      ["Wall Push-Ups", 120, "Keep your core engaged."],
-      ["Standing Calf Raises", 120, "Raise and lower your heels."],
-      ["Standing Side Steps", 120, "Move at your own pace."],
-      ["Easy March", 120, "Stay relaxed and breathe."]
+      ["Wall push-ups", 60, "Push gently against a wall."],
+      ["Chair squats", 60, "Sit and stand using a stable chair."],
+      ["Calf raises", 60, "Rise onto your toes slowly."],
+      ["March in place", 60, "Keep a steady, comfortable pace."],
+      ["Stretch", 60, "Stretch gently and breathe."]
     ]
   },
   {
     id: "cardio5",
-    title: "Five Minute Energy",
-    type: "cardio",
+    title: "Five-Minute Energy",
+    type: "Cardio",
     minutes: 5,
-    level: "beginner",
-    icon: "↗",
+    level: "Beginner",
     lowImpact: true,
+    icon: "🚶",
     exercises: [
-      ["March in Place", 60, "Start gently."],
-      ["Side Steps", 60, "Step left and right."],
-      ["Heel Taps", 60, "Tap forward alternately."],
-      ["Easy March", 60, "Stay comfortable."],
-      ["Slow Walk", 60, "Cool down gently."]
+      ["March in place", 60, "Start at an easy pace."],
+      ["Side steps", 60, "Step gently side to side."],
+      ["Heel taps", 60, "Tap one heel forward at a time."],
+      ["Arm circles", 60, "Circle your arms slowly."],
+      ["Cool down", 60, "Slow down and breathe."]
     ]
   },
   {
-    id: "cardio10",
-    title: "Park Side Cardio",
-    type: "cardio",
+    id: "core10",
+    title: "Core Basics",
+    type: "Core",
     minutes: 10,
-    level: "beginner",
-    icon: "↗",
+    level: "Beginner",
     lowImpact: true,
+    icon: "🧘",
     exercises: [
-      ["Brisk Walk", 180, "Walk at a comfortable pace."],
-      ["Side Steps", 120, "Maintain steady breathing."],
-      ["March in Place", 180, "Lift knees comfortably."],
-      ["Easy Walk", 120, "Cool down."]
+      ["Standing knee lifts", 120, "Alternate lifting knees."],
+      ["Side bends", 120, "Bend gently from side to side."],
+      ["Seated knee raises", 120, "Lift one knee at a time."],
+      ["Bird dog", 120, "Extend opposite arm and leg."],
+      ["Stretch", 120, "Relax your muscles."]
     ]
   },
   {
-    id: "mobility5",
-    title: "Mobility Moment",
-    type: "mobility",
+    id: "flex5",
+    title: "Desk Break Stretch",
+    type: "Flexibility",
     minutes: 5,
-    level: "beginner",
-    icon: "❀",
+    level: "Beginner",
     lowImpact: true,
+    icon: "🌿",
     exercises: [
-      ["Shoulder Rolls", 60, "Roll slowly without forcing."],
-      ["Gentle Neck Turns", 60, "Stay within a comfortable range."],
-      ["Wrist Circles", 60, "Move gently."],
-      ["Ankle Circles", 60, "Use support if needed."],
-      ["Deep Breathing", 60, "Relax your shoulders."]
+      ["Shoulder rolls", 60, "Roll shoulders gently."],
+      ["Neck mobility", 60, "Turn your head slowly."],
+      ["Seated twist", 60, "Rotate your upper body gently."],
+      ["Calf stretch", 60, "Stretch without forcing."],
+      ["Deep breathing", 60, "Relax and breathe."]
     ]
   },
   {
-    id: "mobility10",
-    title: "Everyday Mobility",
-    type: "mobility",
+    id: "full10",
+    title: "Ten-Minute Full Body",
+    type: "Full Body",
     minutes: 10,
-    level: "beginner",
-    icon: "❀",
+    level: "Beginner",
     lowImpact: true,
+    icon: "✨",
     exercises: [
-      ["Shoulder Rolls", 120, "Use comfortable movements."],
-      ["Standing Side Bends", 120, "Do not force the stretch."],
-      ["Gentle Hip Circles", 120, "Use support if needed."],
-      ["Ankle Mobility", 120, "Move slowly."],
-      ["Breathing Reset", 120, "Breathe steadily."]
-    ]
-  },
-  {
-    id: "core5",
-    title: "Standing Core",
-    type: "core",
-    minutes: 5,
-    level: "beginner",
-    icon: "◇",
-    lowImpact: true,
-    exercises: [
-      ["Standing Core Brace", 60, "Breathe normally."],
-      ["Gentle Knee Lifts", 60, "Lift within comfort."],
-      ["Standing Side Steps", 60, "Engage your core gently."],
-      ["Core Brace", 60, "Do not hold your breath."],
-      ["Easy March", 60, "Finish comfortably."]
+      ["March", 120, "Warm up gently."],
+      ["Wall push-ups", 120, "Push against a wall."],
+      ["Chair squats", 120, "Sit and stand slowly."],
+      ["Knee lifts", 120, "Alternate knees."],
+      ["Cool down", 120, "Stretch and recover."]
     ]
   },
   {
     id: "strength15",
-    title: "Strength Circuit",
-    type: "strength",
+    title: "Strength Starter",
+    type: "Strength",
     minutes: 15,
-    level: "intermediate",
-    icon: "✳",
-    lowImpact: false,
+    level: "Beginner",
+    lowImpact: true,
+    icon: "🏋️",
     exercises: [
-      ["Squats", 180, "Use controlled movements."],
-      ["Push-Ups", 180, "Modify as needed."],
-      ["Reverse Lunges", 180, "Keep a comfortable range."],
-      ["Plank", 180, "Stop if form breaks down."],
-      ["Easy March", 180, "Recover steadily."]
+      ["Warm-up", 180, "March in place."],
+      ["Chair squats", 180, "Move slowly."],
+      ["Wall push-ups", 180, "Keep controlled movements."],
+      ["Supported lunges", 180, "Use support as needed."],
+      ["Cool down", 180, "Stretch gently."]
     ]
   },
   {
     id: "cardio15",
-    title: "Active Afternoon",
-    type: "cardio",
+    title: "Low-Impact Cardio",
+    type: "Cardio",
     minutes: 15,
-    level: "intermediate",
-    icon: "↗",
-    lowImpact: false,
+    level: "Beginner",
+    lowImpact: true,
+    icon: "❤️",
     exercises: [
-      ["Brisk Walk", 180, "Start at a steady pace."],
-      ["Jog in Place", 180, "Move comfortably."],
-      ["Side Shuffles", 180, "Keep movements controlled."],
-      ["Fast March", 180, "Maintain breathing."],
-      ["Easy Walk", 180, "Cool down."]
+      ["March", 180, "Walk in place."],
+      ["Side steps", 180, "Move side to side."],
+      ["Heel taps", 180, "Tap your heels forward."],
+      ["Brisk march", 180, "Pick up the pace comfortably."],
+      ["Cool down", 180, "Slow your breathing."]
     ]
   },
   {
-    id: "mobility15",
-    title: "Gentle Recovery",
-    type: "mobility",
-    minutes: 15,
-    level: "beginner",
-    icon: "❀",
-    lowImpact: true,
+    id: "full20",
+    title: "Twenty-Minute Move",
+    type: "Full Body",
+    minutes: 20,
+    level: "Intermediate",
+    lowImpact: false,
+    icon: "⚡",
     exercises: [
-      ["Shoulder Mobility", 180, "Move slowly."],
-      ["Supported Hip Mobility", 180, "Use stable support."],
-      ["Ankle Mobility", 180, "Avoid forcing the joint."],
-      ["Gentle Standing Stretch", 180, "Stay comfortable."],
-      ["Breathing Reset", 180, "Relax and recover."]
+      ["Warm-up", 240, "Prepare your body."],
+      ["Squats", 240, "Move with control."],
+      ["Push-ups", 240, "Use a comfortable variation."],
+      ["Lunges", 240, "Alternate legs."],
+      ["Cool down", 240, "Stretch gently."]
+    ]
+  },
+  {
+    id: "flex30",
+    title: "Mobility Flow",
+    type: "Flexibility",
+    minutes: 30,
+    level: "Beginner",
+    lowImpact: true,
+    icon: "🌸",
+    exercises: [
+      ["Breathing", 360, "Begin slowly."],
+      ["Upper-body stretches", 360, "Move gently."],
+      ["Hip mobility", 360, "Stay within a comfortable range."],
+      ["Leg stretches", 360, "Avoid forcing movements."],
+      ["Recovery", 360, "Relax and breathe."]
+    ]
+  },
+  {
+    id: "strength30",
+    title: "Strength Circuit",
+    type: "Strength",
+    minutes: 30,
+    level: "Intermediate",
+    lowImpact: false,
+    icon: "🔥",
+    exercises: [
+      ["Warm-up", 360, "Prepare your muscles."],
+      ["Squats", 360, "Move with control."],
+      ["Push-ups", 360, "Choose a manageable variation."],
+      ["Lunges", 360, "Alternate legs."],
+      ["Cool down", 360, "Stretch gently."]
     ]
   }
 ];
 
-const storageKey = "fitflow-profiles-v1";
-const sessionKey = "fitflow-current-email";
+// ============================================
+// SUPABASE CONNECTION
+// ============================================
 
-let profiles = {};
-let currentEmail = localStorage.getItem(sessionKey);
+const SUPABASE_URL =
+  "https://vreefjwltnbdkhlcngpy.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "sb_publishable_MVNHnLLLPKa0yVaL_RQ9WQ_kH6Ph1K-";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+const $ = id => document.getElementById(id);
+
+// ============================================
+// APPLICATION STATE
+// ============================================
+
+let currentUser = null;
+let currentEmail = "";
 let user = null;
+let historyCache = [];
+
 let filter = "all";
 let recommendationOffset = 0;
 
 let activeWorkout = null;
 let exerciseIndex = 0;
 let secondsLeft = 0;
+let completedSeconds = 0;
 let interval = null;
 let running = false;
-let completedSeconds = 0;
 
-function loadProfiles() {
-  try {
-    profiles = JSON.parse(localStorage.getItem(storageKey)) || {};
-  } catch {
-    profiles = {};
-  }
-}
+let toastTimeout = null;
 
-function save() {
-  if (!user || !currentEmail) return;
-  profiles[currentEmail] = user;
-  localStorage.setItem(storageKey, JSON.stringify(profiles));
-}
+// ============================================
+// PAGE NAVIGATION
+// ============================================
 
 function showPage(page) {
+  const publicPages = ["welcome", "login", "setup"];
+  const isPublic = publicPages.includes(page);
+
+  $("app").hidden = isPublic;
+
   document.querySelectorAll(".page").forEach(section => {
-    section.classList.toggle("active", section.id === page);
+    const active = section.id === page;
+
+    section.hidden = !active;
+    section.classList.toggle("active", active);
   });
 
   document.querySelectorAll("nav button").forEach(button => {
-    button.classList.toggle("active", button.dataset.page === page);
+    button.classList.toggle(
+      "active",
+      button.dataset.page === page
+    );
   });
-
-  $("navigation").classList.toggle(
-    "hidden",
-    !user || !user.setupComplete
-  );
 
   window.scrollTo(0, 0);
 
@@ -223,129 +238,349 @@ function showPage(page) {
 
 function toast(message) {
   const element = $("toast");
+
   element.textContent = message;
   element.classList.add("show");
 
-  clearTimeout(toast.timeout);
-  toast.timeout = setTimeout(() => {
+  clearTimeout(toastTimeout);
+
+  toastTimeout = setTimeout(() => {
     element.classList.remove("show");
-  }, 3000);
+  }, 3500);
 }
+
+// ============================================
+// AUTHENTICATION
+// ============================================
+
+async function signUp() {
+  const email = $("email").value.trim().toLowerCase();
+  const password = $("password").value;
+
+  if (!email || password.length < 6) {
+    $("authMessage").textContent =
+      "Enter a valid email and a password of at least 6 characters.";
+    return;
+  }
+
+  $("authMessage").textContent = "Creating your account...";
+
+  try {
+    const { data, error } =
+      await supabaseClient.auth.signUp({ email, password });
+
+    if (error) throw error;
+
+    if (data.session && data.user) {
+      await handleAuthenticatedUser(data.user);
+      toast("Account created successfully!");
+    } else {
+      $("authMessage").textContent =
+        "Check your email to confirm your account, then log in.";
+    }
+  } catch (error) {
+    $("authMessage").textContent = error.message;
+  }
+}
+
+async function signIn(event) {
+  event.preventDefault();
+
+  const email = $("email").value.trim().toLowerCase();
+  const password = $("password").value;
+
+  $("authMessage").textContent = "Signing in...";
+
+  try {
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) throw error;
+
+    await handleAuthenticatedUser(data.user);
+
+    $("authMessage").textContent = "";
+    toast("Welcome back to FITFLOW!");
+  } catch (error) {
+    $("authMessage").textContent = error.message;
+  }
+}
+
+async function signOut() {
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) throw error;
+
+    clearTimer();
+
+    currentUser = null;
+    currentEmail = "";
+    user = null;
+    historyCache = [];
+    activeWorkout = null;
+
+    $("loginForm").reset();
+
+    showPage("welcome");
+    toast("You've been logged out.");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function handleAuthenticatedUser(authUser) {
+  if (!authUser) return;
+
+  currentUser = authUser;
+  currentEmail = authUser.email || "";
+
+  const saved = authUser.user_metadata?.fitflow || {};
+
+  user = {
+    name: saved.name || "",
+    goal: saved.goal || "",
+    favorite: saved.favorite || "",
+    level: saved.level || "",
+    minutes: saved.minutes || "10",
+    limitations: saved.limitations || "",
+    setupComplete: saved.setupComplete || false
+  };
+
+  await loadWorkouts();
+
+  if (user.setupComplete) {
+    $("availableTime").value = user.minutes;
+    showPage("home");
+  } else {
+    populateSetup();
+    showPage("setup");
+  }
+}
+
+// ============================================
+// SAVE PROFILE
+// ============================================
+
+async function saveProfile() {
+  if (!currentUser || !user) return false;
+
+  try {
+    const { data, error } =
+      await supabaseClient.auth.updateUser({
+        data: {
+          fitflow: {
+            ...user,
+            setupComplete: true
+          }
+        }
+      });
+
+    if (error) throw error;
+
+    currentUser = data.user;
+    user.setupComplete = true;
+
+    return true;
+  } catch (error) {
+    toast("Could not save profile: " + error.message);
+    return false;
+  }
+}
+
+function populateSetup() {
+  if (!user) return;
+
+  $("userName").value = user.name || "";
+  $("goal").value = user.goal || "";
+  $("fitnessLevel").value = user.level || "";
+  $("favorite").value = user.favorite || "";
+  $("minutes").value = user.minutes || "10";
+  $("limitations").value = user.limitations || "";
+}
+
+// ============================================
+// WORKOUT HISTORY
+// ============================================
+
+async function loadWorkouts() {
+  if (!currentUser) return;
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("workouts")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    historyCache = (data || []).map(entry => ({
+      id: entry.id,
+      date: dateKey(new Date(entry.created_at)),
+      title: entry.workout_name,
+      minutes: Number(entry.duration) || 0
+    }));
+  } catch (error) {
+    console.error("History loading failed:", error);
+    historyCache = [];
+    toast("Could not load workout history.");
+  }
+}
+
+async function saveWorkout(name, minutes) {
+  if (!currentUser) return false;
+
+  try {
+    const { error } = await supabaseClient
+      .from("workouts")
+      .insert({
+        user_id: currentUser.id,
+        workout_name: name,
+        duration: minutes
+      });
+
+    if (error) throw error;
+
+    await loadWorkouts();
+    return true;
+  } catch (error) {
+    toast("Could not save workout: " + error.message);
+    return false;
+  }
+}
+
+// ============================================
+// PROGRESS CALCULATIONS
+// ============================================
 
 function dateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
+
   return `${year}-${month}-${day}`;
 }
 
-function getHistory() {
-  return user?.history || [];
+function totalMinutes() {
+  return historyCache.reduce(
+    (total, entry) => total + entry.minutes, 0
+  );
 }
 
 function todayMinutes() {
-  return getHistory()
+  return historyCache
     .filter(entry => entry.date === dateKey())
-    .reduce((sum, entry) => sum + entry.minutes, 0);
-}
-
-function totalMinutes() {
-  return getHistory().reduce(
-    (sum, entry) => sum + entry.minutes, 0
-  );
+    .reduce((total, entry) => total + entry.minutes, 0);
 }
 
 function streak() {
   const dates = new Set(
-    getHistory()
+    historyCache
       .filter(entry => entry.minutes > 0)
       .map(entry => entry.date)
   );
 
-  let cursor = new Date();
-  let count = 0;
+  let day = new Date();
 
-  if (!dates.has(dateKey(cursor))) {
-    cursor.setDate(cursor.getDate() - 1);
+  if (!dates.has(dateKey(day))) {
+    day.setDate(day.getDate() - 1);
   }
 
-  while (dates.has(dateKey(cursor))) {
+  let count = 0;
+
+  while (dates.has(dateKey(day))) {
     count++;
-    cursor.setDate(cursor.getDate() - 1);
+    day.setDate(day.getDate() - 1);
   }
 
   return count;
 }
 
-function safeText(value) {
-  return String(value).replace(/[&<>"']/g, character => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[character]);
-}
+// ============================================
+// WORKOUT RECOMMENDATIONS
+// ============================================
 
-// Recommendation filtering:
-// This is a rules-based demo, not a live AI model.
-// A production service should use medically reviewed content.
+function suitableWorkouts(maxMinutes = Infinity) {
+  if (!user) return [];
 
-function suitableWorkouts(maxMinutes) {
-  const options = workouts.filter(workout => {
+  const levels = {
+    Beginner: 1,
+    Intermediate: 2,
+    Advanced: 3
+  };
+
+  const allowedLevel = levels[user.level] || 1;
+
+  // Free-text limitations cannot be safely interpreted
+  // as medical clearance. Prefer low-impact options.
+  const needsCaution = Boolean(user.limitations.trim());
+
+  const matches = workouts.filter(workout => {
     if (workout.minutes > maxMinutes) return false;
 
-    if (user.limitations !== "none") {
-      if (!workout.lowImpact) return false;
-    }
-
-    if (
-      user.level === "beginner" &&
-      workout.level === "intermediate"
-    ) {
+    if ((levels[workout.level] || 1) > allowedLevel) {
       return false;
     }
 
-    if (user.limitations === "other") {
-      return workout.type === "mobility" &&
-        workout.lowImpact;
+    if (needsCaution && !workout.lowImpact) {
+      return false;
     }
 
     return true;
   });
 
-  const preferred = user.favorite !== "any"
-    ? user.favorite
-    : user.goal;
-
-  return options.sort((a, b) => {
-    const score = workout => {
+  return matches.sort((a, b) => {
+    function score(workout) {
       let points = 0;
-      if (workout.type === preferred) points += 10;
-      if (workout.type === user.goal) points += 7;
-      if (workout.minutes === maxMinutes) points += 5;
+
+      if (workout.type === user.favorite) points += 10;
+
+      if (
+        user.goal === "Build muscle" &&
+        workout.type === "Strength"
+      ) points += 7;
+
+      if (
+        user.goal === "Improve endurance" &&
+        workout.type === "Cardio"
+      ) points += 7;
+
+      if (
+        user.goal === "Lose weight" &&
+        workout.type === "Cardio"
+      ) points += 5;
+
+      if (
+        workout.minutes === Number(user.minutes)
+      ) points += 5;
+
       return points;
-    };
+    }
 
     return score(b) - score(a);
   });
 }
 
 function recommendedWorkout() {
-  const minutes = Number(user.minutes || 10);
-  const matches = suitableWorkouts(minutes);
+  const options = suitableWorkouts(Number(user.minutes));
 
-  if (!matches.length) return null;
+  if (!options.length) return null;
 
-  return matches[
-    recommendationOffset % matches.length
-  ];
+  return options[recommendationOffset % options.length];
 }
+
+// ============================================
+// DASHBOARD
+// ============================================
 
 function updateDashboard() {
   if (!user) return;
 
-  $("greetingName").textContent = user.name || "Friend";
+  $("greetingName").textContent = user.name || "Athlete";
 
   const workout = recommendedWorkout();
 
@@ -354,19 +589,20 @@ function updateDashboard() {
     $("recommendType").textContent = workout.type.toUpperCase();
     $("recommendTitle").textContent = workout.title;
     $("recommendDetails").textContent =
-      `${workout.minutes} min · No equipment`;
+      `${workout.minutes} minutes · No equipment`;
     $("startRecommended").disabled = false;
   } else {
-    $("recommendIcon").textContent = "❀";
-    $("recommendType").textContent = "YOUR WELLBEING";
+    $("recommendIcon").textContent = "🌿";
+    $("recommendType").textContent = "WELLNESS";
     $("recommendTitle").textContent = "No matching workout";
     $("recommendDetails").textContent =
-      "Adjust your settings or consult a professional.";
+      "Try updating your available time or preferences.";
     $("startRecommended").disabled = true;
   }
 
   const current = todayMinutes();
-  const goal = Number(user.minutes || 10);
+  const goal = Math.max(1, Number(user.minutes) || 10);
+
   const percent = Math.min(
     100,
     Math.round((current / goal) * 100)
@@ -374,68 +610,95 @@ function updateDashboard() {
 
   $("progressPercent").textContent = `${percent}%`;
   $("progressRing").style.setProperty(
-    "--percent",
-    `${percent}%`
+    "--percent", `${percent}%`
   );
+
   $("progressMinutes").textContent =
     `${current} / ${goal} min`;
 
-  $("homeWorkouts").textContent = getHistory().length;
+  $("homeWorkouts").textContent = historyCache.length;
   $("homeMinutes").textContent = totalMinutes();
-  $("homeStreak").textContent = `${streak()} days`;
+  $("homeStreak").textContent = streak();
 }
+
+// ============================================
+// WORKOUT EXPLORER
+// ============================================
 
 function renderWorkouts() {
   if (!user) return;
 
-  const minutes = Number($("availableTime").value);
+  const selectedTime = $("availableTime").value;
 
-  const matches = suitableWorkouts(minutes)
-    .filter(workout =>
-      filter === "all" || workout.type === filter
-    );
+  const maxMinutes = selectedTime === "all"
+    ? Infinity
+    : Number(selectedTime);
+
+  const matches = suitableWorkouts(maxMinutes).filter(
+    workout => filter === "all" || workout.type === filter
+  );
+
+  const list = $("workoutList");
+  list.innerHTML = "";
 
   if (!matches.length) {
-    $("workoutList").innerHTML = `
-      <div class="panel">
-        <h3>No matching workouts</h3>
-        <p>Try more available time or a different category.
-        Your reported limitations are still applied.</p>
-      </div>
-    `;
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.textContent =
+      "No matching workouts. Try another duration or category.";
+    list.appendChild(panel);
     return;
   }
 
-  $("workoutList").innerHTML = matches.map(workout => `
-    <article class="workout-card">
-      <div class="workout-card-art">${workout.icon}</div>
-      <div class="workout-card-body">
-        <p class="eyebrow">${workout.type.toUpperCase()}</p>
-        <h3>${safeText(workout.title)}</h3>
-        <p class="muted">
-          ${workout.minutes} minutes · No equipment
-        </p>
-        <button class="primary" data-workout="${workout.id}">
-          Start workout →
-        </button>
-      </div>
-    </article>
-  `).join("");
+  matches.forEach(workout => {
+    const card = document.createElement("article");
+    card.className = "workout-card";
 
-  document.querySelectorAll("[data-workout]").forEach(button => {
-    button.addEventListener("click", () => {
-      startWorkout(button.dataset.workout);
-    });
+    const art = document.createElement("div");
+    art.className = "workout-card-art";
+    art.textContent = workout.icon;
+
+    const body = document.createElement("div");
+    body.className = "workout-card-body";
+
+    const type = document.createElement("p");
+    type.className = "eyebrow";
+    type.textContent = workout.type.toUpperCase();
+
+    const title = document.createElement("h3");
+    title.textContent = workout.title;
+
+    const details = document.createElement("p");
+    details.className = "muted";
+    details.textContent =
+      `${workout.minutes} minutes · ${workout.level}`;
+
+    const button = document.createElement("button");
+    button.className = "primary";
+    button.textContent = "Start Workout →";
+    button.addEventListener(
+      "click",
+      () => startWorkout(workout.id)
+    );
+
+    body.append(type, title, details, button);
+    card.append(art, body);
+    list.appendChild(card);
   });
 }
 
-// Workout timer
+// ============================================
+// WORKOUT TIMER
+// ============================================
 
 function formatTime(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const remaining = seconds % 60;
+  const minutes = Math.floor(Math.max(0, seconds) / 60);
+  const remaining = Math.max(0, seconds) % 60;
 
-  return `${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
+  return (
+    String(minutes).padStart(2, "0") + ":" +
+    String(remaining).padStart(2, "0")
+  );
 }
 
 function clearTimer() {
@@ -450,14 +713,18 @@ function renderExercise() {
   const exercise = activeWorkout.exercises[exerciseIndex];
 
   $("sessionTitle").textContent = activeWorkout.title;
+
   $("sessionStep").textContent =
-    `Exercise ${exerciseIndex + 1} of ${activeWorkout.exercises.length}`;
+    `Exercise ${exerciseIndex + 1} of ` +
+    activeWorkout.exercises.length;
 
   $("exerciseIcon").textContent = activeWorkout.icon;
   $("exerciseName").textContent = exercise[0];
   $("exerciseInfo").textContent = exercise[2];
   $("timerDisplay").textContent = formatTime(secondsLeft);
-  $("pauseWorkout").textContent = running ? "Pause" : "Resume";
+
+  $("pauseWorkout").textContent =
+    running ? "Pause" : "Resume";
 }
 
 function startWorkout(id) {
@@ -509,7 +776,6 @@ function nextExercise() {
   if (!activeWorkout) return;
 
   clearTimer();
-
   exerciseIndex++;
 
   if (exerciseIndex >= activeWorkout.exercises.length) {
@@ -518,61 +784,82 @@ function nextExercise() {
   }
 
   secondsLeft = activeWorkout.exercises[exerciseIndex][1];
+
   renderExercise();
   resumeWorkout();
 }
 
-function finishWorkout() {
+async function finishWorkout() {
   if (!activeWorkout) return;
 
   clearTimer();
 
+  const name = activeWorkout.title;
   const earnedMinutes = Math.floor(completedSeconds / 60);
-  const completedTitle = activeWorkout.title;
-
-  if (earnedMinutes > 0) {
-    user.history.push({
-      date: dateKey(),
-      title: completedTitle,
-      minutes: earnedMinutes
-    });
-
-    save();
-  }
 
   activeWorkout = null;
-  showPage("progress");
 
-  toast(
-    earnedMinutes > 0
-      ? `Great job! ${earnedMinutes} active minute(s) recorded.`
-      : "Workout ended. No full active minutes recorded."
-  );
+  if (earnedMinutes > 0) {
+    toast("Saving your workout...");
+
+    const saved = await saveWorkout(name, earnedMinutes);
+
+    if (saved) {
+      toast("Great work! Your workout was saved.");
+    }
+  } else {
+    toast("Workout ended before a full minute was completed.");
+  }
+
+  showPage("progress");
 }
 
+// ============================================
+// PROGRESS PAGE
+// ============================================
+
 function renderProgress() {
-  $("totalWorkouts").textContent = getHistory().length;
-  $("totalMinutes").textContent = `${totalMinutes()} min`;
-  $("totalStreak").textContent = `${streak()} days`;
+  $("totalWorkouts").textContent = historyCache.length;
+  $("totalMinutes").textContent = totalMinutes();
+  $("totalStreak").textContent = streak();
 
-  const entries = [...getHistory()].reverse();
+  const list = $("historyList");
+  list.innerHTML = "";
 
-  if (!entries.length) {
-    $("historyList").innerHTML =
-      `<p class="muted">Your first workout is waiting for you.</p>`;
+  if (!historyCache.length) {
+    const message = document.createElement("p");
+    message.className = "muted";
+    message.textContent =
+      "Your first workout is waiting for you!";
+    list.appendChild(message);
     return;
   }
 
-  $("historyList").innerHTML = entries.map(entry => `
-    <div class="history-item">
-      <div>
-        <strong>${safeText(entry.title)}</strong>
-        <div class="muted">${safeText(entry.date)}</div>
-      </div>
-      <strong>${entry.minutes} min</strong>
-    </div>
-  `).join("");
+  historyCache.forEach(entry => {
+    const row = document.createElement("div");
+    row.className = "history-item";
+
+    const information = document.createElement("div");
+
+    const title = document.createElement("strong");
+    title.textContent = entry.title;
+
+    const date = document.createElement("div");
+    date.className = "muted";
+    date.textContent = entry.date;
+
+    const duration = document.createElement("strong");
+    duration.textContent = `${entry.minutes} min`;
+
+    information.append(title, date);
+    row.append(information, duration);
+    list.appendChild(row);
+  });
 }
+
+// ============================================
+// PROFILE PAGE
+// ============================================
 
 function renderProfile() {
   if (!user) return;
@@ -581,76 +868,36 @@ function renderProfile() {
   $("profileEmail").textContent = currentEmail;
 
   $("profileSummary").textContent =
-    `Goal: ${user.goal} · Favorite: ${user.favorite} · ` +
-    `Available time: ${user.minutes} minutes · ` +
-    `Fitness level: ${user.level} · ` +
-    `Limitations: ${user.limitations}`;
+    `Goal: ${user.goal}\n` +
+    `Favorite workout: ${user.favorite}\n` +
+    `Fitness level: ${user.level}\n` +
+    `Available time: ${user.minutes} minutes\n` +
+    `Limitations: ${user.limitations || "None provided"}`;
+
+  $("profileSummary").style.whiteSpace = "pre-line";
 }
 
-function populateSetup() {
-  if (!user) return;
+// ============================================
+// EVENT LISTENERS
+// ============================================
 
-  $("userName").value = user.name || "";
-  $("goal").value = user.goal || "strength";
-  $("fitnessLevel").value = user.level || "beginner";
-  $("favorite").value = user.favorite || "any";
-  $("minutes").value = user.minutes || "10";
-  $("limitations").value = user.limitations || "none";
-}
+document.addEventListener("DOMContentLoaded", async () => {
 
-// Event listeners
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadProfiles();
-
-  user = profiles[currentEmail] || null;
-
-  if (user?.setupComplete) {
-    $("availableTime").value = String(user.minutes || 10);
-    showPage("home");
-  } else {
-    showPage("welcome");
-  }
-
+  // Welcome page
   $("getStarted").addEventListener("click", () => {
     showPage("login");
   });
 
-  $("loginForm").addEventListener("submit", event => {
-    event.preventDefault();
-
-    currentEmail = $("email").value.trim().toLowerCase();
-
-    if (!currentEmail) return;
-
-    localStorage.setItem(sessionKey, currentEmail);
-
-    if (!profiles[currentEmail]) {
-      profiles[currentEmail] = {
-        name: "",
-        goal: "strength",
-        favorite: "any",
-        level: "beginner",
-        minutes: "10",
-        limitations: "none",
-        setupComplete: false,
-        history: []
-      };
-    }
-
-    user = profiles[currentEmail];
-    if (!Array.isArray(user.history)) user.history = [];
-
-    if (user.setupComplete) {
-      $("availableTime").value = String(user.minutes);
-      showPage("home");
-    } else {
-      populateSetup();
-      showPage("setup");
-    }
+  $("backWelcome").addEventListener("click", () => {
+    showPage("welcome");
   });
 
-  $("setupForm").addEventListener("submit", event => {
+  // Login and signup
+  $("loginForm").addEventListener("submit", signIn);
+  $("signupButton").addEventListener("click", signUp);
+
+  // Setup form
+  $("setupForm").addEventListener("submit", async event => {
     event.preventDefault();
 
     if (!user) return;
@@ -660,17 +907,20 @@ document.addEventListener("DOMContentLoaded", () => {
     user.level = $("fitnessLevel").value;
     user.favorite = $("favorite").value;
     user.minutes = $("minutes").value;
-    user.limitations = $("limitations").value;
-    user.setupComplete = true;
+    user.limitations = $("limitations").value.trim();
+
+    const saved = await saveProfile();
+
+    if (!saved) return;
 
     recommendationOffset = 0;
     $("availableTime").value = user.minutes;
 
-    save();
     showPage("home");
-    toast("Your personalized plan is ready!");
+    toast("Your fitness profile is ready!");
   });
 
+  // Navigation buttons
   document.querySelectorAll("nav button").forEach(button => {
     button.addEventListener("click", () => {
       if (activeWorkout) {
@@ -682,6 +932,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Dashboard buttons
   $("findWorkout").addEventListener("click", () => {
     $("availableTime").value = user.minutes;
     showPage("workouts");
@@ -698,10 +949,18 @@ document.addEventListener("DOMContentLoaded", () => {
   $("swapRecommended").addEventListener("click", () => {
     recommendationOffset++;
     updateDashboard();
-    toast("Here's another workout option!");
   });
 
-  $("updateWorkouts").addEventListener("click", renderWorkouts);
+  // Workout explorer
+  $("updateWorkouts").addEventListener(
+    "click",
+    renderWorkouts
+  );
+
+  $("availableTime").addEventListener(
+    "change",
+    renderWorkouts
+  );
 
   document.querySelectorAll(".chip").forEach(button => {
     button.addEventListener("click", () => {
@@ -711,10 +970,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       button.classList.add("selected");
       filter = button.dataset.filter;
+
       renderWorkouts();
     });
   });
 
+  // Active workout
   $("pauseWorkout").addEventListener("click", pauseWorkout);
   $("nextExercise").addEventListener("click", nextExercise);
   $("finishWorkout").addEventListener("click", finishWorkout);
@@ -725,20 +986,29 @@ document.addEventListener("DOMContentLoaded", () => {
     showPage("workouts");
   });
 
+  // Profile
   $("editProfile").addEventListener("click", () => {
     populateSetup();
     showPage("setup");
   });
 
-  $("logout").addEventListener("click", () => {
-    clearTimer();
-    activeWorkout = null;
-    currentEmail = null;
-    user = null;
+  $("logout").addEventListener("click", signOut);
 
-    localStorage.removeItem(sessionKey);
-    $("loginForm").reset();
+  // Restore existing login
+  try {
+    const { data, error } =
+      await supabaseClient.auth.getSession();
 
+    if (error) throw error;
+
+    if (data.session) {
+      await handleAuthenticatedUser(data.session.user);
+    } else {
+      showPage("welcome");
+    }
+  } catch (error) {
+    console.error("Login initialization error:", error);
     showPage("welcome");
-  });
+    toast("Unable to restore your login session.");
+  }
 });
