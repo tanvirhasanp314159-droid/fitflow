@@ -20,7 +20,7 @@ const $ = id => document.getElementById(id);
 
 // Use the live website URL for email redirects.
 const SITE_URL =
-  window.location.origin + window.location.pathname;
+  "https://tanvirhasanp314159-droid.github.io/fitflow/";
 
 const RECOVERY_URL = new URL(SITE_URL);
 RECOVERY_URL.searchParams.set("mode", "reset");
