@@ -1,11 +1,8 @@
-// ============================================
-// FITFLOW - COMPLETE JAVASCRIPT
-// GEMINI AI + SUPABASE
-// ============================================
 
+"use strict";
 
 // ============================================
-// 1. SUPABASE CONNECTION
+// FITFLOW SUPABASE CONNECTION
 // ============================================
 
 const SUPABASE_URL =
@@ -21,275 +18,338 @@ const supabaseClient = window.supabase.createClient(
 
 const $ = id => document.getElementById(id);
 
+// Use the live website URL for email redirects.
+const SITE_URL =
+  window.location.origin + window.location.pathname;
+
+const RECOVERY_URL = new URL(SITE_URL);
+RECOVERY_URL.searchParams.set("mode", "reset");
 
 // ============================================
-// 2. APPLICATION STATE
+// APPLICATION STATE
 // ============================================
 
-// Gemini generates workouts dynamically.
-// No hardcoded workout library.
-let workouts = [];
-
+let user = null;
 let currentUser = null;
 let currentEmail = "";
-let user = null;
 
 let historyCache = [];
-
-let filter = "all";
-let recommendationOffset = 0;
+let workouts = [];
 
 let generatingWorkouts = false;
-let activeWorkout = null;
+let generationNumber = 0;
 
+let recommendationOffset = 0;
+let filter = "all";
+
+let activeWorkout = null;
 let exerciseIndex = 0;
 let secondsLeft = 0;
 let completedSeconds = 0;
 
-let interval = null;
+let timer = null;
 let running = false;
 
-let toastTimeout = null;
 let authBusy = false;
-let authGeneration = 0;
+let toastTimer = null;
 
+let recoveryMode =
+  new URLSearchParams(window.location.search)
+    .get("mode") === "reset" ||
+  new URLSearchParams(
+    window.location.hash.slice(1)
+  ).get("type") === "recovery";
 
 // ============================================
-// 3. PAGE NAVIGATION
+// NAVIGATION
 // ============================================
 
 function showPage(page) {
-
   const publicPages = [
-    "welcome",
-    "login",
-    "setup"
+    "welcome", "login", "setup", "reset"
   ];
 
-  const isPublic = publicPages.includes(page);
+  $("app").hidden = publicPages.includes(page);
 
-  $("app").hidden = isPublic;
-
-  document.querySelectorAll(".page").forEach(section => {
-
-    const active = section.id === page;
-
-    section.hidden = !active;
-    section.classList.toggle("active", active);
-
+  document.querySelectorAll(".page").forEach(element => {
+    const visible = element.id === page;
+    element.hidden = !visible;
+    element.classList.toggle("active", visible);
   });
 
   document.querySelectorAll("nav button").forEach(button => {
-
     button.classList.toggle(
       "active",
       button.dataset.page === page
     );
-
   });
 
+  $("navigation").classList.toggle(
+    "hidden",
+    !user?.setupComplete
+  );
+
+  if (page === "home") updateDashboard();
+  if (page === "workouts") renderWorkouts();
+  if (page === "progress") renderProgress();
+  if (page === "profile") renderProfile();
+
   window.scrollTo(0, 0);
-
-  if (page === "home") {
-    updateDashboard();
-  }
-
-  if (page === "workouts") {
-    renderWorkouts();
-  }
-
-  if (page === "progress") {
-    renderProgress();
-  }
-
-  if (page === "profile") {
-    renderProfile();
-  }
 }
 
-
 // ============================================
-// 4. NOTIFICATIONS
+// NOTIFICATIONS
 // ============================================
 
 function toast(message) {
+  $("toast").textContent = message;
+  $("toast").classList.add("show");
 
-  const element = $("toast");
+  clearTimeout(toastTimer);
 
-  element.textContent = message;
-  element.classList.add("show");
-
-  clearTimeout(toastTimeout);
-
-  toastTimeout = setTimeout(() => {
-
-    element.classList.remove("show");
-
+  toastTimer = setTimeout(() => {
+    $("toast").classList.remove("show");
   }, 3500);
 }
 
-
 // ============================================
-// 5. SUPABASE SIGNUP
+// CREATE ACCOUNT
 // ============================================
 
 async function signUp() {
-
   if (authBusy) return;
 
   const email = $("email").value.trim().toLowerCase();
   const password = $("password").value;
 
-  const message = $("authMessage");
-
   if (!email || password.length < 6) {
-
-    message.textContent =
-      "Enter a valid email and a password of at least 6 characters.";
-
+    $("authMessage").textContent =
+      "Enter an email and a password of at least 6 characters.";
     return;
   }
 
   authBusy = true;
-  message.textContent = "Creating your account...";
+  $("authMessage").textContent = "Creating your account...";
 
   try {
-
     const { data, error } =
       await supabaseClient.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          emailRedirectTo: SITE_URL
+        }
       });
 
     if (error) throw error;
 
-    if (data.session && data.user) {
-
-      await handleAuthenticatedUser(data.user);
-
-      toast("Account created successfully!");
-
+    if (data.session?.user) {
+      await handleAuthenticatedUser(data.session.user);
     } else {
-
-      message.textContent =
-        "Check your email to confirm your account, then log in.";
-
+      $("authMessage").textContent =
+        "Check your email to confirm your account. " +
+        "The link should bring you back to FITFLOW.";
     }
-
   } catch (error) {
-
-    console.error("Signup error:", error);
-
-    message.textContent = error.message;
-
+    $("authMessage").textContent = error.message;
   } finally {
-
     authBusy = false;
-
   }
 }
 
-
 // ============================================
-// 6. SUPABASE LOGIN
+// LOG IN
 // ============================================
 
 async function signIn(event) {
-
   event.preventDefault();
 
   if (authBusy) return;
-
-  const email = $("email").value.trim().toLowerCase();
-  const password = $("password").value;
-
-  const message = $("authMessage");
-
   authBusy = true;
-  message.textContent = "Signing in...";
+
+  $("authMessage").textContent = "Signing in...";
 
   try {
-
     const { data, error } =
       await supabaseClient.auth.signInWithPassword({
-        email,
-        password
+        email: $("email").value.trim().toLowerCase(),
+        password: $("password").value
       });
 
     if (error) throw error;
 
     await handleAuthenticatedUser(data.user);
 
-    message.textContent = "";
-
+    $("authMessage").textContent = "";
     toast("Welcome back to FITFLOW!");
-
   } catch (error) {
-
-    console.error("Login error:", error);
-
-    message.textContent = error.message;
-
+    $("authMessage").textContent = error.message;
   } finally {
-
     authBusy = false;
-
   }
 }
 
+// ============================================
+// FORGOT PASSWORD
+// ============================================
+
+async function requestPasswordReset() {
+  const email = $("email").value.trim().toLowerCase();
+
+  if (!email) {
+    $("authMessage").textContent =
+      "Enter your email above first.";
+    $("email").focus();
+    return;
+  }
+
+  $("forgotPassword").disabled = true;
+  $("authMessage").textContent =
+    "Sending password reset instructions...";
+
+  try {
+    const { error } =
+      await supabaseClient.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: RECOVERY_URL.toString()
+        }
+      );
+
+    if (error) throw error;
+
+    $("authMessage").textContent =
+      "If this account exists, a reset link " +
+      "has been sent. Check your inbox and spam.";
+  } catch (error) {
+    $("authMessage").textContent = error.message;
+  } finally {
+    $("forgotPassword").disabled = false;
+  }
+}
 
 // ============================================
-// 7. LOGOUT
+// CHANGE PASSWORD
+// ============================================
+
+async function updatePassword(event) {
+  event.preventDefault();
+
+  const password = $("newPassword").value;
+
+  if (password.length < 8) {
+    $("resetMessage").textContent =
+      "Use at least 8 characters.";
+    return;
+  }
+
+  if (password !== $("confirmPassword").value) {
+    $("resetMessage").textContent =
+      "Passwords do not match.";
+    return;
+  }
+
+  const button = $("resetPasswordForm")
+    .querySelector('[type="submit"]');
+
+  button.disabled = true;
+  $("resetMessage").textContent =
+    "Updating your password...";
+
+  try {
+    const { data, error: sessionError } =
+      await supabaseClient.auth.getSession();
+
+    if (sessionError) throw sessionError;
+
+    if (!data.session) {
+      throw Error(
+        "Reset link expired. Request a new reset email."
+      );
+    }
+
+    const { error } =
+      await supabaseClient.auth.updateUser({
+        password
+      });
+
+    if (error) throw error;
+
+    generationNumber++;
+
+    await supabaseClient.auth.signOut();
+
+    recoveryMode = false;
+
+    currentUser = null;
+    currentEmail = "";
+    user = null;
+    historyCache = [];
+    workouts = [];
+
+    window.history.replaceState(
+      {},
+      "",
+      SITE_URL
+    );
+
+    $("resetPasswordForm").reset();
+    $("loginForm").reset();
+
+    showPage("login");
+
+    $("authMessage").textContent =
+      "Password changed! Sign in with your new password.";
+
+    toast("Password updated.");
+  } catch (error) {
+    $("resetMessage").textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+// ============================================
+// LOG OUT
 // ============================================
 
 async function signOut() {
-
   try {
-
     const { error } =
       await supabaseClient.auth.signOut();
 
     if (error) throw error;
 
-    authGeneration++;
-
+    generationNumber++;
     clearTimer();
 
     currentUser = null;
     currentEmail = "";
     user = null;
-
-    workouts = [];
     historyCache = [];
-
+    workouts = [];
     activeWorkout = null;
-    recommendationOffset = 0;
 
     $("loginForm").reset();
 
     showPage("welcome");
-
-    toast("You have been logged out.");
-
+    toast("Logged out.");
   } catch (error) {
-
-    console.error("Logout error:", error);
-
     toast(error.message);
-
   }
 }
 
-
 // ============================================
-// 8. LOAD AUTHENTICATED USER
+// LOAD USER
 // ============================================
 
 async function handleAuthenticatedUser(authUser) {
+  if (recoveryMode || !authUser) {
+    if (recoveryMode) showPage("reset");
+    return;
+  }
 
-  if (!authUser) return;
-
-  const generation = ++authGeneration;
+  const requestNumber = ++generationNumber;
 
   currentUser = authUser;
   currentEmail = authUser.email || "";
@@ -298,21 +358,13 @@ async function handleAuthenticatedUser(authUser) {
     authUser.user_metadata?.fitflow || {};
 
   user = {
-
     name: saved.name || "",
-
     goal: saved.goal || "",
-
     favorite: saved.favorite || "",
-
     level: saved.level || "",
-
-    minutes: saved.minutes || "10",
-
+    minutes: String(saved.minutes || "10"),
     limitations: saved.limitations || "",
-
-    setupComplete: saved.setupComplete || false
-
+    setupComplete: Boolean(saved.setupComplete)
   };
 
   workouts = [];
@@ -321,484 +373,270 @@ async function handleAuthenticatedUser(authUser) {
 
   await loadWorkouts();
 
-  if (generation !== authGeneration) return;
+  if (requestNumber !== generationNumber) return;
 
   if (user.setupComplete) {
-
-    $("availableTime").value = String(user.minutes);
-
+    $("availableTime").value = user.minutes;
     showPage("home");
 
-    // Generate AI workouts after login.
     await generateAIWorkouts(
       Number(user.minutes),
       "Any"
     );
-
   } else {
-
     populateSetup();
-
     showPage("setup");
-
   }
 }
 
-
 // ============================================
-// 9. SAVE USER PROFILE
-// ============================================
-
-async function saveProfile() {
-
-  if (!currentUser || !user) return false;
-
-  try {
-
-    const { data, error } =
-      await supabaseClient.auth.updateUser({
-
-        data: {
-
-          fitflow: {
-
-            name: user.name,
-            goal: user.goal,
-            favorite: user.favorite,
-            level: user.level,
-            minutes: user.minutes,
-            limitations: user.limitations,
-            setupComplete: true
-
-          }
-
-        }
-
-      });
-
-    if (error) throw error;
-
-    currentUser = data.user;
-    user.setupComplete = true;
-
-    return true;
-
-  } catch (error) {
-
-    console.error("Profile save error:", error);
-
-    toast("Could not save your profile.");
-
-    return false;
-
-  }
-}
-
-
-// ============================================
-// 10. LOAD PROFILE INTO SETUP FORM
+// PROFILE SETUP
 // ============================================
 
 function populateSetup() {
-
   if (!user) return;
 
-  $("userName").value = user.name || "";
-  $("goal").value = user.goal || "";
-  $("fitnessLevel").value = user.level || "";
-  $("favorite").value = user.favorite || "";
-  $("minutes").value = user.minutes || "10";
-  $("limitations").value = user.limitations || "";
+  $("userName").value = user.name;
+  $("goal").value = user.goal;
+  $("fitnessLevel").value = user.level;
+  $("favorite").value = user.favorite;
+  $("minutes").value = user.minutes;
+  $("limitations").value = user.limitations;
 }
 
+async function saveProfile() {
+  const { data, error } =
+    await supabaseClient.auth.updateUser({
+      data: {
+        fitflow: {
+          ...user,
+          setupComplete: true
+        }
+      }
+    });
+
+  if (error) throw error;
+
+  currentUser = data.user;
+  user.setupComplete = true;
+}
 
 // ============================================
-// 11. GEMINI AI WORKOUT GENERATION
+// GEMINI AI WORKOUT GENERATION
 // ============================================
-
-// Calls the Supabase Edge Function.
-//
-// The Edge Function securely calls Gemini.
-//
-// Do not put your Gemini API key in this file.
 
 async function generateAIWorkouts(
   selectedMinutes = null,
   selectedType = "Any"
 ) {
-
-  if (!user || !currentUser || generatingWorkouts) {
-    return false;
-  }
+  if (
+    !user ||
+    !currentUser ||
+    generatingWorkouts ||
+    recoveryMode
+  ) return false;
 
   generatingWorkouts = true;
 
-  const requestingUserId = currentUser.id;
-  const requestingGeneration = authGeneration;
+  const requestNumber = generationNumber;
+  const requestedUserId = currentUser.id;
 
-  const swapButton = $("swapRecommended");
-  const updateButton = $("updateWorkouts");
-
-  swapButton.disabled = true;
-  updateButton.disabled = true;
+  $("updateWorkouts").disabled = true;
+  $("swapRecommended").disabled = true;
+  $("startRecommended").disabled = true;
 
   toast("Gemini is generating your workouts...");
 
   try {
-
     const minutes =
-      selectedMinutes ?? Number(user.minutes || 10);
+      selectedMinutes || Number(user.minutes) || 10;
 
     const { data, error } =
       await supabaseClient.functions.invoke(
         "generate-workout",
         {
           body: {
-
             goal: user.goal,
-
             favorite: user.favorite,
-
             level: user.level,
-
-            minutes: minutes,
-
+            minutes,
             type: selectedType,
-
-            // Do not send medical details to the API.
-            hasLimitations: Boolean(
-              user.limitations?.trim()
-            )
-
+            hasLimitations:
+              Boolean(user.limitations.trim())
           }
         }
       );
 
-    if (
-      requestingGeneration !== authGeneration ||
-      currentUser?.id !== requestingUserId
-    ) {
-      return false;
-    }
-
     if (error) {
-
       let message = error.message;
 
-      if (error.context) {
-
+      if (error.context?.json) {
         try {
-
-          const details = await error.context.json();
+          const details =
+            await error.context.json();
 
           message = details.error || message;
-
-        } catch (_) {
-
-          // Keep the original error message.
-
-        }
-
+        } catch (_) {}
       }
 
       throw new Error(message);
     }
 
     if (
-      !data ||
-      !Array.isArray(data.workouts) ||
-      data.workouts.length === 0
+      !Array.isArray(data?.workouts) ||
+      !data.workouts.length
     ) {
-
       throw new Error(
-        "Gemini returned no workouts."
+        "Gemini did not return workout plans."
       );
-
     }
 
-    const validTypes = [
-      "Strength",
-      "Cardio",
-      "Core",
-      "Flexibility",
-      "Full Body"
-    ];
+    const safe = data.workouts.map((w, i) => ({
+      id: String(w.id || `ai-${Date.now()}-${i}`),
+      title: String(w.title || "Workout"),
+      type: String(w.type || "Full Body"),
+      minutes: Number(w.minutes) || minutes,
+      level: String(
+        w.level || user.level || "Beginner"
+      ),
+      icon: typeof w.icon === "string"
+        ? w.icon
+        : "💪",
 
-    const validWorkouts = data.workouts.filter(workout => {
+      exercises: Array.isArray(w.exercises)
+        ? w.exercises.filter(ex =>
+            Array.isArray(ex) &&
+            ex.length >= 3 &&
+            typeof ex[0] === "string" &&
+            Number.isFinite(Number(ex[1])) &&
+            Number(ex[1]) > 0 &&
+            typeof ex[2] === "string"
+          ).map(ex => [
+            ex[0],
+            Math.round(Number(ex[1])),
+            ex[2]
+          ])
+        : []
+    })).filter(w => w.exercises.length > 0);
 
-      return (
-
-        typeof workout.id === "string" &&
-
-        typeof workout.title === "string" &&
-
-        validTypes.includes(workout.type) &&
-
-        Number(workout.minutes) > 0 &&
-
-        Number(workout.minutes) <= 60 &&
-
-        Array.isArray(workout.exercises) &&
-
-        workout.exercises.length > 0 &&
-
-        workout.exercises.every(exercise => (
-
-          Array.isArray(exercise) &&
-
-          exercise.length >= 3 &&
-
-          typeof exercise[0] === "string" &&
-
-          Number.isInteger(exercise[1]) &&
-
-          exercise[1] > 0 &&
-
-          typeof exercise[2] === "string"
-
-        ))
-
-      );
-
-    });
-
-    if (!validWorkouts.length) {
-
+    if (!safe.length) {
       throw new Error(
-        "Gemini returned invalid workout data."
+        "Gemini returned no valid exercises."
       );
-
-    }
-
-    // Use the generated workouts.
-    workouts = validWorkouts;
-
-    recommendationOffset = 0;
-
-    // Reset category filters after a new AI request.
-    if (selectedType === "Any") {
-
-      filter = "all";
-
-      document.querySelectorAll(".chip").forEach(chip => {
-        chip.classList.toggle(
-          "selected",
-          chip.dataset.filter === "all"
-        );
-      });
-
-    }
-
-    // Match workout explorer duration to the AI output.
-    $("availableTime").value = String(minutes);
-
-    if (!$("home").hidden) {
-      updateDashboard();
-    }
-
-    if (!$("workouts").hidden) {
-      renderWorkouts();
-    }
-
-    toast("Your AI workouts are ready!");
-
-    return true;
-
-  } catch (error) {
-
-    console.error("Gemini API error:", error);
-
-    toast(
-      error.message ||
-      "Could not generate AI workouts."
-    );
-
-    return false;
-
-  } finally {
-
-    generatingWorkouts = false;
-
-    swapButton.disabled = false;
-    updateButton.disabled = false;
-
-  }
-}
-
-
-// ============================================
-// 12. WORKOUT RECOMMENDATIONS
-// ============================================
-
-function suitableWorkouts(maxMinutes = Infinity) {
-
-  if (!user) return [];
-
-  const levels = {
-
-    Beginner: 1,
-    Intermediate: 2,
-    Advanced: 3
-
-  };
-
-  const userLevel = levels[user.level] || 1;
-
-  const matches = workouts.filter(workout => {
-
-    if (workout.minutes > maxMinutes) {
-      return false;
     }
 
     if (
-      (levels[workout.level] || 1) > userLevel
-    ) {
-      return false;
-    }
+      requestNumber !== generationNumber ||
+      currentUser?.id !== requestedUserId
+    ) return false;
 
+    workouts = safe;
+    recommendationOffset = 0;
+
+    $("availableTime").value = String(minutes);
+
+    if (!$("home").hidden) updateDashboard();
+    if (!$("workouts").hidden) renderWorkouts();
+
+    toast("Your AI workouts are ready!");
     return true;
 
-  });
+  } catch (error) {
+    console.error("generate-workout error:", error);
 
-  return matches.sort((a, b) => {
-
-    function score(workout) {
-
-      let points = 0;
-
-      if (workout.type === user.favorite) {
-        points += 10;
-      }
-
-      if (
-        user.goal === "Build muscle" &&
-        workout.type === "Strength"
-      ) {
-        points += 7;
-      }
-
-      if (
-        user.goal === "Improve endurance" &&
-        workout.type === "Cardio"
-      ) {
-        points += 7;
-      }
-
-      if (
-        user.goal === "Lose weight" &&
-        workout.type === "Cardio"
-      ) {
-        points += 5;
-      }
-
-      if (
-        workout.minutes === Number(user.minutes)
-      ) {
-        points += 5;
-      }
-
-      return points;
-
+    if (requestNumber === generationNumber) {
+      toast(
+        "Could not generate workouts: " +
+        error.message
+      );
     }
 
-    return score(b) - score(a);
+    return false;
+  } finally {
+    generatingWorkouts = false;
 
-  });
+    $("updateWorkouts").disabled = false;
+    $("swapRecommended").disabled = false;
+
+    $("startRecommended").disabled =
+      workouts.length === 0;
+  }
 }
 
-
 // ============================================
-// 13. GET RECOMMENDED WORKOUT
+// RECOMMEND WORKOUT
 // ============================================
 
 function recommendedWorkout() {
-
   if (!workouts.length) return null;
 
-  // The AI generated the workout options.
-  // Rank those options by user preferences.
-  const options = suitableWorkouts(Infinity);
+  const ranked = [...workouts].sort((a, b) => {
+    const score = w =>
+      (w.type === user.favorite ? 10 : 0) +
+      (w.minutes === Number(user.minutes) ? 5 : 0);
 
-  if (!options.length) return null;
+    return score(b) - score(a);
+  });
 
-  return options[
-    recommendationOffset % options.length
+  return ranked[
+    recommendationOffset % ranked.length
   ];
 }
 
-
 // ============================================
-// 14. UPDATE HOME DASHBOARD
+// HOME DASHBOARD
 // ============================================
 
 function updateDashboard() {
-
   if (!user) return;
 
   $("greetingName").textContent =
     user.name || "Athlete";
 
-  const workout = recommendedWorkout();
+  const w = recommendedWorkout();
 
-  if (workout) {
+  $("recommendIcon").textContent =
+    w?.icon || "✨";
 
-    $("recommendIcon").textContent =
-      workout.icon || "💪";
+  $("recommendType").textContent =
+    w?.type || "GEMINI AI";
 
-    $("recommendType").textContent =
-      workout.type.toUpperCase();
+  $("recommendTitle").textContent =
+    w?.title ||
+    (generatingWorkouts
+      ? "Generating..."
+      : "Generate your first workout");
 
-    $("recommendTitle").textContent =
-      workout.title;
+  $("recommendDetails").textContent =
+    w
+      ? `${w.minutes} min · ${w.level}`
+      : "Use Try Another to generate AI workouts.";
 
-    $("recommendDetails").textContent =
-      `${workout.minutes} minutes · No equipment`;
-
-    $("startRecommended").disabled = false;
-
-  } else {
-
-    $("recommendIcon").textContent = "✨";
-
-    $("recommendType").textContent =
-      "AI RECOMMENDATION";
-
-    $("recommendTitle").textContent =
-      generatingWorkouts
-        ? "Generating your workout..."
-        : "No workout available yet";
-
-    $("recommendDetails").textContent =
-      generatingWorkouts
-        ? "Gemini is preparing your recommendations."
-        : "Click Try Another to generate workouts.";
-
-    $("startRecommended").disabled = true;
-
-  }
-
-  const current = todayMinutes();
+  $("startRecommended").disabled =
+    !w || generatingWorkouts;
 
   const goal = Math.max(
     1,
     Number(user.minutes) || 10
   );
 
-  const percent = Math.min(
-    100,
-    Math.round((current / goal) * 100)
-  );
+  const today = todayMinutes();
 
-  $("progressPercent").textContent =
-    `${percent}%`;
+  const percentage = Math.min(
+    100,
+    Math.round((today / goal) * 100)
+  );
 
   $("progressRing").style.setProperty(
     "--percent",
-    `${percent}%`
+    `${percentage}%`
   );
 
+  $("progressPercent").textContent =
+    percentage + "%";
+
   $("progressMinutes").textContent =
-    `${current} / ${goal} min`;
+    `${today} / ${goal} min`;
 
   $("homeWorkouts").textContent =
     historyCache.length;
@@ -808,152 +646,145 @@ function updateDashboard() {
 
   $("homeStreak").textContent =
     streak();
+
+  renderWorkoutPreview();
 }
 
-
 // ============================================
-// 15. WORKOUT EXPLORER
+// WORKOUT CARDS
 // ============================================
 
-function renderWorkouts() {
+function createWorkoutCard(workout) {
+  const card = document.createElement("article");
+  card.className = "workout-card";
 
-  if (!user) return;
+  const art = document.createElement("div");
+  art.className = "workout-card-art";
+  art.textContent = workout.icon;
 
-  const selectedTime = $("availableTime").value;
+  const body = document.createElement("div");
+  body.className = "workout-card-body";
 
-  const maxMinutes = selectedTime === "all"
-    ? Infinity
-    : Number(selectedTime);
+  const type = document.createElement("p");
+  type.className = "eyebrow";
+  type.textContent = workout.type;
 
-  const matches = suitableWorkouts(
-    maxMinutes
-  ).filter(workout => {
+  const title = document.createElement("h3");
+  title.textContent = workout.title;
 
-    return filter === "all" ||
-      workout.type === filter;
+  const details = document.createElement("p");
+  details.textContent =
+    `${workout.minutes} minutes · ${workout.level}`;
 
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "primary";
+  button.textContent = "Start Workout";
+
+  button.addEventListener("click", () => {
+    startWorkout(workout.id);
   });
 
-  const list = $("workoutList");
+  body.append(type, title, details, button);
+  card.append(art, body);
 
-  list.innerHTML = "";
+  return card;
+}
 
-  if (!matches.length) {
+function renderWorkoutPreview() {
+  const element = $("homeWorkoutPreview");
+  element.replaceChildren();
 
-    const panel = document.createElement("div");
+  workouts.slice(0, 3).forEach(w => {
+    element.append(createWorkoutCard(w));
+  });
+}
 
-    panel.className = "panel";
+function renderWorkouts() {
+  const duration = $("availableTime").value;
 
-    panel.textContent = generatingWorkouts
-      ? "Gemini is generating workouts..."
-      : "No matching workouts. Select a duration and click Update Workouts to generate more.";
+  const maxMinutes = duration === "all"
+    ? Infinity
+    : Number(duration);
 
-    list.appendChild(panel);
+  const matching = workouts.filter(w =>
+    w.minutes <= maxMinutes &&
+    (filter === "all" || w.type === filter)
+  );
 
+  const element = $("workoutList");
+  element.replaceChildren();
+
+  if (!matching.length) {
+    const p = document.createElement("p");
+    p.textContent =
+      "No matches yet. Choose a duration " +
+      "and generate AI workouts.";
+
+    element.append(p);
     return;
   }
 
-  matches.forEach(workout => {
-
-    const card = document.createElement("article");
-    card.className = "workout-card";
-
-    const art = document.createElement("div");
-    art.className = "workout-card-art";
-    art.textContent = workout.icon || "💪";
-
-    const body = document.createElement("div");
-    body.className = "workout-card-body";
-
-    const type = document.createElement("p");
-    type.className = "eyebrow";
-    type.textContent = workout.type.toUpperCase();
-
-    const title = document.createElement("h3");
-    title.textContent = workout.title;
-
-    const details = document.createElement("p");
-    details.className = "muted";
-    details.textContent =
-      `${workout.minutes} minutes · ${workout.level}`;
-
-    const button = document.createElement("button");
-    button.className = "primary";
-    button.textContent = "Start Workout →";
-
-    button.addEventListener("click", () => {
-      startWorkout(workout.id);
-    });
-
-    body.append(
-      type,
-      title,
-      details,
-      button
-    );
-
-    card.append(
-      art,
-      body
-    );
-
-    list.appendChild(card);
-
+  matching.forEach(w => {
+    element.append(createWorkoutCard(w));
   });
 }
 
+// ============================================
+// HUMAN-LIKE EXERCISE ANIMATION
+// ============================================
+
+function updateExerciseAnimation(name) {
+  window.fitflowAnimator?.setExercise(name);
+  window.fitflowAnimator?.pause(!running);
+
+  $("animationLabel").textContent =
+    "Stylized demonstration: " + name;
+}
+
+function setAnimationPaused(paused) {
+  window.fitflowAnimator?.pause(paused);
+}
 
 // ============================================
-// 16. WORKOUT TIMER
+// TIMER
 // ============================================
 
 function formatTime(seconds) {
-
-  const safeSeconds = Math.max(
+  const s = Math.max(
     0,
     Math.floor(seconds)
   );
 
   const minutes =
-    Math.floor(safeSeconds / 60);
+    String(Math.floor(s / 60)).padStart(2, "0");
 
   const remaining =
-    safeSeconds % 60;
+    String(s % 60).padStart(2, "0");
 
-  return (
-    String(minutes).padStart(2, "0") +
-    ":" +
-    String(remaining).padStart(2, "0")
-  );
+  return minutes + ":" + remaining;
 }
-
-
-// ============================================
-// 17. CLEAR TIMER
-// ============================================
 
 function clearTimer() {
+  if (timer) clearInterval(timer);
 
-  clearInterval(interval);
-
-  interval = null;
-
+  timer = null;
   running = false;
+
+  setAnimationPaused(true);
 }
 
-
 // ============================================
-// 18. DISPLAY CURRENT EXERCISE
+// RENDER ACTIVE EXERCISE
 // ============================================
 
 function renderExercise() {
-
   if (!activeWorkout) return;
 
-  const exercise =
+  const ex =
     activeWorkout.exercises[exerciseIndex];
 
-  if (!exercise) return;
+  if (!ex) return;
 
   $("sessionTitle").textContent =
     activeWorkout.title;
@@ -962,134 +793,92 @@ function renderExercise() {
     `Exercise ${exerciseIndex + 1} of ` +
     activeWorkout.exercises.length;
 
-  $("exerciseIcon").textContent =
-    activeWorkout.icon || "💪";
-
-  $("exerciseName").textContent =
-    exercise[0];
-
-  $("exerciseInfo").textContent =
-    exercise[2];
+  $("exerciseName").textContent = ex[0];
+  $("exerciseInfo").textContent = ex[2];
 
   $("timerDisplay").textContent =
     formatTime(secondsLeft);
 
   $("pauseWorkout").textContent =
     running ? "Pause" : "Resume";
+
+  updateExerciseAnimation(ex[0]);
 }
 
-
 // ============================================
-// 19. START WORKOUT
+// START WORKOUT
 // ============================================
 
 function startWorkout(id) {
+  const chosen = workouts.find(w => w.id === id);
 
-  const workout = workouts.find(
-    item => item.id === id
-  );
-
-  if (!workout) {
-
-    toast("Workout could not be found.");
-
+  if (!chosen) {
+    toast("Workout not found.");
     return;
   }
 
   clearTimer();
 
-  activeWorkout = workout;
-
+  activeWorkout = chosen;
   exerciseIndex = 0;
-
-  secondsLeft =
-    workout.exercises[0][1];
-
+  secondsLeft = chosen.exercises[0][1];
   completedSeconds = 0;
 
   showPage("session");
-
   renderExercise();
-
   resumeWorkout();
 }
 
-
 // ============================================
-// 20. RESUME WORKOUT
+// RESUME / PAUSE
 // ============================================
 
 function resumeWorkout() {
-
   if (!activeWorkout || running) return;
 
   running = true;
-
   $("pauseWorkout").textContent = "Pause";
 
-  interval = setInterval(() => {
+  setAnimationPaused(false);
 
-    secondsLeft--;
+  timer = setInterval(() => {
+    secondsLeft -= 1;
+    completedSeconds += 1;
 
-    completedSeconds++;
+    $("timerDisplay").textContent =
+      formatTime(secondsLeft);
 
     if (secondsLeft <= 0) {
-
       nextExercise();
-
-    } else {
-
-      $("timerDisplay").textContent =
-        formatTime(secondsLeft);
-
     }
-
   }, 1000);
 }
 
-
-// ============================================
-// 21. PAUSE WORKOUT
-// ============================================
-
 function pauseWorkout() {
-
   if (!activeWorkout) return;
 
   if (running) {
-
     clearTimer();
-
-    $("pauseWorkout").textContent =
-      "Resume";
-
+    $("pauseWorkout").textContent = "Resume";
   } else {
-
     resumeWorkout();
-
   }
 }
 
-
 // ============================================
-// 22. NEXT EXERCISE
+// NEXT EXERCISE
 // ============================================
 
 function nextExercise() {
-
   if (!activeWorkout) return;
 
   clearTimer();
-
   exerciseIndex++;
 
   if (
-    exerciseIndex >=
-    activeWorkout.exercises.length
+    exerciseIndex >= activeWorkout.exercises.length
   ) {
-
     finishWorkout();
-
     return;
   }
 
@@ -1097,342 +886,198 @@ function nextExercise() {
     activeWorkout.exercises[exerciseIndex][1];
 
   renderExercise();
-
   resumeWorkout();
 }
 
-
 // ============================================
-// 23. FINISH WORKOUT
+// FINISH WORKOUT
 // ============================================
 
 async function finishWorkout() {
-
   if (!activeWorkout) return;
 
   clearTimer();
 
-  const completedTitle =
-    activeWorkout.title;
-
-  const earnedMinutes = Math.floor(
+  const title = activeWorkout.title;
+  const earned = Math.floor(
     completedSeconds / 60
   );
 
   activeWorkout = null;
 
-  if (earnedMinutes > 0) {
-
-    toast("Saving your workout...");
-
-    const saved = await saveWorkout(
-      completedTitle,
-      earnedMinutes
-    );
-
-    if (saved) {
-
+  if (earned > 0) {
+    try {
+      await saveWorkout(title, earned);
+      toast("Workout saved!");
+    } catch (error) {
       toast(
-        "Great work! Your workout was saved."
+        "Workout not saved: " +
+        error.message
       );
-
     }
-
   } else {
-
-    toast(
-      "Workout ended before a full minute was completed."
-    );
-
+    toast("Workout ended before one full minute.");
   }
 
   showPage("progress");
 }
 
-
 // ============================================
-// 24. SAVE WORKOUT TO SUPABASE
-// ============================================
-
-async function saveWorkout(name, minutes) {
-
-  if (!currentUser) {
-
-    toast("Please log in first.");
-
-    return false;
-  }
-
-  try {
-
-    const { error } = await supabaseClient
-      .from("workouts")
-      .insert({
-
-        user_id: currentUser.id,
-
-        workout_name: name,
-
-        duration: minutes
-
-      });
-
-    if (error) throw error;
-
-    await loadWorkouts();
-
-    return true;
-
-  } catch (error) {
-
-    console.error("Workout save error:", error);
-
-    toast(
-      "Could not save workout: " +
-      error.message
-    );
-
-    return false;
-
-  }
-}
-
-
-// ============================================
-// 25. LOAD WORKOUT HISTORY
+// SUPABASE WORKOUT HISTORY
 // ============================================
 
 async function loadWorkouts() {
-
   if (!currentUser) return;
 
-  const requestedUserId = currentUser.id;
+  const id = currentUser.id;
 
   try {
-
     const { data, error } = await supabaseClient
       .from("workouts")
       .select("*")
-      .eq("user_id", requestedUserId)
+      .eq("user_id", id)
       .order("created_at", {
         ascending: false
       });
 
     if (error) throw error;
 
-    if (currentUser?.id !== requestedUserId) {
-      return;
-    }
+    if (currentUser?.id !== id) return;
 
     historyCache = (data || []).map(entry => ({
-
       id: entry.id,
-
-      date: dateKey(
-        new Date(entry.created_at)
-      ),
-
       title: entry.workout_name,
-
-      minutes: Number(entry.duration) || 0
-
+      minutes: Number(entry.duration) || 0,
+      date: dateKey(new Date(entry.created_at))
     }));
-
   } catch (error) {
-
-    console.error(
-      "Workout history error:",
-      error
-    );
-
-    if (currentUser?.id === requestedUserId) {
-      historyCache = [];
-
-      toast(
-        "Could not load workout history."
-      );
-    }
-
+    console.error("Load history:", error);
+    toast("Could not load workout history.");
   }
 }
 
+async function saveWorkout(title, duration) {
+  if (!currentUser) {
+    throw Error("Sign in to save workouts.");
+  }
+
+  const { error } = await supabaseClient
+    .from("workouts")
+    .insert({
+      user_id: currentUser.id,
+      workout_name: title,
+      duration
+    });
+
+  if (error) throw error;
+
+  await loadWorkouts();
+}
 
 // ============================================
-// 26. DATE HELPER
+// PROGRESS CALCULATIONS
 // ============================================
 
-function dateKey(date = new Date()) {
-
-  const year = date.getFullYear();
+function dateKey(d = new Date()) {
+  const year = d.getFullYear();
 
   const month = String(
-    date.getMonth() + 1
+    d.getMonth() + 1
   ).padStart(2, "0");
 
   const day = String(
-    date.getDate()
+    d.getDate()
   ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }
 
-
-// ============================================
-// 27. TOTAL WORKOUT MINUTES
-// ============================================
+function todayMinutes() {
+  return historyCache
+    .filter(w => w.date === dateKey())
+    .reduce((n, w) => n + w.minutes, 0);
+}
 
 function totalMinutes() {
-
   return historyCache.reduce(
-    (total, entry) =>
-      total + entry.minutes,
+    (n, w) => n + w.minutes,
     0
   );
 }
 
-
-// ============================================
-// 28. TODAY'S WORKOUT MINUTES
-// ============================================
-
-function todayMinutes() {
-
-  return historyCache
-    .filter(entry =>
-      entry.date === dateKey()
-    )
-    .reduce(
-      (total, entry) =>
-        total + entry.minutes,
-      0
-    );
-}
-
-
-// ============================================
-// 29. WORKOUT STREAK
-// ============================================
-
 function streak() {
-
-  const dates = new Set(
-
+  const days = new Set(
     historyCache
-      .filter(entry => entry.minutes > 0)
-      .map(entry => entry.date)
-
+      .filter(w => w.minutes > 0)
+      .map(w => w.date)
   );
 
-  let day = new Date();
+  const current = new Date();
 
-  if (!dates.has(dateKey(day))) {
-
-    day.setDate(
-      day.getDate() - 1
-    );
-
+  if (!days.has(dateKey(current))) {
+    current.setDate(current.getDate() - 1);
   }
 
   let count = 0;
 
-  while (dates.has(dateKey(day))) {
-
+  while (days.has(dateKey(current))) {
     count++;
-
-    day.setDate(
-      day.getDate() - 1
-    );
-
+    current.setDate(current.getDate() - 1);
   }
 
   return count;
 }
 
-
 // ============================================
-// 30. RENDER PROGRESS PAGE
+// PROGRESS PAGE
 // ============================================
 
 function renderProgress() {
-
   $("totalWorkouts").textContent =
     historyCache.length;
 
   $("totalMinutes").textContent =
-    totalMinutes();
+    totalMinutes() + " min";
 
   $("totalStreak").textContent =
-    streak();
+    streak() + " days";
 
-  const list = $("historyList");
-
-  list.innerHTML = "";
+  const element = $("historyList");
+  element.replaceChildren();
 
   if (!historyCache.length) {
-
-    const message =
-      document.createElement("p");
-
-    message.className = "muted";
-
-    message.textContent =
+    element.textContent =
       "Your first workout is waiting for you!";
-
-    list.appendChild(message);
-
     return;
   }
 
   historyCache.forEach(entry => {
-
-    const row =
-      document.createElement("div");
-
+    const row = document.createElement("div");
     row.className = "history-item";
 
-    const information =
-      document.createElement("div");
+    const info = document.createElement("div");
 
-    const title =
-      document.createElement("strong");
-
+    const title = document.createElement("strong");
     title.textContent = entry.title;
 
-    const date =
-      document.createElement("div");
-
+    const date = document.createElement("div");
     date.className = "muted";
-
     date.textContent = entry.date;
 
-    const duration =
-      document.createElement("strong");
+    const duration = document.createElement("strong");
+    duration.textContent = entry.minutes + " min";
 
-    duration.textContent =
-      `${entry.minutes} min`;
-
-    information.append(
-      title,
-      date
-    );
-
-    row.append(
-      information,
-      duration
-    );
-
-    list.appendChild(row);
-
+    info.append(title, date);
+    row.append(info, duration);
+    element.append(row);
   });
 }
 
-
 // ============================================
-// 31. RENDER PROFILE PAGE
+// PROFILE PAGE
 // ============================================
 
 function renderProfile() {
-
   if (!user) return;
 
   $("profileName").textContent =
@@ -1442,58 +1087,30 @@ function renderProfile() {
     currentEmail;
 
   $("profileSummary").textContent =
-
     `Goal: ${user.goal}\n` +
-
-    `Favorite workout: ${user.favorite}\n` +
-
+    `Favorite: ${user.favorite}\n` +
     `Fitness level: ${user.level}\n` +
-
     `Available time: ${user.minutes} minutes\n` +
-
-    `Limitations: ${
-      user.limitations || "None provided"
-    }`;
-
-  $("profileSummary").style.whiteSpace =
-    "pre-line";
+    `Things to avoid: ${user.limitations || "None provided"}`;
 }
 
-
 // ============================================
-// 32. EVENT LISTENERS
+// EVENT LISTENERS
 // ============================================
 
 document.addEventListener(
   "DOMContentLoaded",
   async () => {
 
-    // ========================================
-    // WELCOME SCREEN
-    // ========================================
-
     $("getStarted").addEventListener(
       "click",
-      () => {
-
-        showPage("login");
-
-      }
+      () => showPage("login")
     );
 
     $("backWelcome").addEventListener(
       "click",
-      () => {
-
-        showPage("welcome");
-
-      }
+      () => showPage("welcome")
     );
-
-
-    // ========================================
-    // LOGIN AND SIGNUP
-    // ========================================
 
     $("loginForm").addEventListener(
       "submit",
@@ -1505,224 +1122,156 @@ document.addEventListener(
       signUp
     );
 
+    $("forgotPassword").addEventListener(
+      "click",
+      requestPasswordReset
+    );
 
-    // ========================================
-    // SAVE PROFILE
-    // ========================================
+    $("resetPasswordForm").addEventListener(
+      "submit",
+      updatePassword
+    );
 
+    // Detect password recovery from Supabase.
+    supabaseClient.auth.onAuthStateChange(event => {
+      if (event === "PASSWORD_RECOVERY") {
+        recoveryMode = true;
+        showPage("reset");
+      }
+    });
+
+    // Save fitness profile.
     $("setupForm").addEventListener(
       "submit",
       async event => {
-
         event.preventDefault();
 
         if (!user) return;
 
-        user.name =
-          $("userName").value.trim();
+        const previous = { ...user };
 
-        user.goal =
-          $("goal").value;
+        Object.assign(user, {
+          name: $("userName").value.trim(),
+          goal: $("goal").value,
+          level: $("fitnessLevel").value,
+          favorite: $("favorite").value,
+          minutes: $("minutes").value,
+          limitations:
+            $("limitations").value.trim(),
+          setupComplete: true
+        });
 
-        user.level =
-          $("fitnessLevel").value;
-
-        user.favorite =
-          $("favorite").value;
-
-        user.minutes =
-          $("minutes").value;
-
-        user.limitations =
-          $("limitations").value.trim();
-
-        const saved =
+        try {
           await saveProfile();
 
-        if (!saved) return;
+          $("availableTime").value =
+            user.minutes;
 
-        recommendationOffset = 0;
+          showPage("home");
 
-        $("availableTime").value =
-          user.minutes;
+          await generateAIWorkouts(
+            Number(user.minutes),
+            "Any"
+          );
+        } catch (error) {
+          user = previous;
 
-        workouts = [];
+          console.error("Profile:", error);
 
-        showPage("home");
-
-        // Generate Gemini workouts.
-        await generateAIWorkouts(
-          Number(user.minutes),
-          "Any"
-        );
-
+          toast(
+            "Profile could not be saved: " +
+            error.message
+          );
+        }
       }
     );
 
-
-    // ========================================
-    // NAVIGATION
-    // ========================================
-
+    // Navigation.
     document.querySelectorAll(
       "nav button"
     ).forEach(button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          if (activeWorkout) {
-
-            clearTimer();
-
-            activeWorkout = null;
-
-          }
-
-          showPage(
-            button.dataset.page
-          );
-
+      button.addEventListener("click", () => {
+        if (activeWorkout) {
+          clearTimer();
+          activeWorkout = null;
         }
-      );
 
+        showPage(button.dataset.page);
+      });
     });
 
-
-    // ========================================
-    // FIND WORKOUT
-    // ========================================
-
+    // Workout navigation.
     $("findWorkout").addEventListener(
       "click",
       () => {
-
         $("availableTime").value =
-          String(user.minutes);
+          user.minutes;
 
         showPage("workouts");
-
       }
     );
-
-
-    // ========================================
-    // START RECOMMENDED WORKOUT
-    // ========================================
 
     $("startRecommended").addEventListener(
       "click",
       () => {
+        const w = recommendedWorkout();
 
-        const workout =
-          recommendedWorkout();
-
-        if (workout) {
-
-          startWorkout(workout.id);
-
-        }
-
+        if (w) startWorkout(w.id);
       }
     );
 
-
-    // ========================================
-    // TRY ANOTHER - GEMINI AI
-    // ========================================
-
+    // Generate another Gemini workout.
     $("swapRecommended").addEventListener(
       "click",
       async () => {
-
         await generateAIWorkouts(
           Number(user.minutes),
           "Any"
         );
-
       }
     );
 
-
-    // ========================================
-    // UPDATE WORKOUTS - GEMINI AI
-    // ========================================
-
+    // Generate workouts using filters.
     $("updateWorkouts").addEventListener(
       "click",
       async () => {
-
-        const selected =
-          $("availableTime").value;
-
-        const minutes =
-          selected === "all"
-            ? Number(user.minutes)
-            : Number(selected);
+        const time = $("availableTime").value;
 
         await generateAIWorkouts(
-          minutes,
+          time === "all"
+            ? Number(user.minutes)
+            : Number(time),
+
           filter === "all"
             ? "Any"
             : filter
         );
-
       }
     );
-
-
-    // ========================================
-    // WORKOUT DURATION FILTER
-    // ========================================
 
     $("availableTime").addEventListener(
       "change",
       renderWorkouts
     );
 
-
-    // ========================================
-    // WORKOUT CATEGORY FILTERS
-    // ========================================
-
     document.querySelectorAll(
       ".chip"
     ).forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(
+          ".chip"
+        ).forEach(c => {
+          c.classList.remove("selected");
+        });
 
-      button.addEventListener(
-        "click",
-        () => {
+        button.classList.add("selected");
+        filter = button.dataset.filter;
 
-          document.querySelectorAll(
-            ".chip"
-          ).forEach(chip => {
-
-            chip.classList.remove(
-              "selected"
-            );
-
-          });
-
-          button.classList.add(
-            "selected"
-          );
-
-          filter =
-            button.dataset.filter;
-
-          renderWorkouts();
-
-        }
-      );
-
+        renderWorkouts();
+      });
     });
 
-
-    // ========================================
-    // WORKOUT TIMER CONTROLS
-    // ========================================
-
+    // Exercise timer.
     $("pauseWorkout").addEventListener(
       "click",
       pauseWorkout
@@ -1738,88 +1287,69 @@ document.addEventListener(
       finishWorkout
     );
 
-
-    // ========================================
-    // EXIT WORKOUT
-    // ========================================
-
     $("exitWorkout").addEventListener(
       "click",
       () => {
-
         clearTimer();
-
         activeWorkout = null;
-
         showPage("workouts");
-
       }
     );
 
-
-    // ========================================
-    // EDIT PROFILE
-    // ========================================
-
+    // Profile.
     $("editProfile").addEventListener(
       "click",
       () => {
-
         populateSetup();
-
         showPage("setup");
-
       }
     );
-
-
-    // ========================================
-    // LOGOUT
-    // ========================================
 
     $("logout").addEventListener(
       "click",
       signOut
     );
 
-
-    // ========================================
-    // RESTORE EXISTING LOGIN
-    // ========================================
-
+    // Restore session.
     try {
-
       const { data, error } =
         await supabaseClient.auth.getSession();
 
       if (error) throw error;
 
-      if (data.session?.user) {
+      if (recoveryMode) {
+        if (data.session) {
+          showPage("reset");
+        } else {
+          showPage("login");
 
+          $("authMessage").textContent =
+            "That reset link is invalid or expired. " +
+            "Request another email.";
+
+          recoveryMode = false;
+        }
+      } else if (data.session?.user) {
         await handleAuthenticatedUser(
           data.session.user
         );
-
       } else {
-
         showPage("welcome");
-
       }
-
     } catch (error) {
-
       console.error(
-        "Session restoration error:",
+        "Session restore:",
         error
       );
 
-      showPage("welcome");
+      if (recoveryMode) {
+        showPage("reset");
 
-      toast(
-        "Unable to restore your login session."
-      );
-
+        $("resetMessage").textContent =
+          "Unable to verify your reset link.";
+      } else {
+        showPage("welcome");
+      }
     }
-
   }
 );
