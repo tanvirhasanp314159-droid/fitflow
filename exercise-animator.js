@@ -1,587 +1,210 @@
 
-// ============================================
-// FITFLOW HUMAN-LIKE EXERCISE ANIMATOR
-// ============================================
-
+/* FITFLOW dynamic AI exercise animator */
 (() => {
-  const canvas =
-    document.getElementById("exerciseCanvas");
-
+  const canvas = document.getElementById("exerciseCanvas");
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
-
   if (!ctx) return;
 
-  // ==========================================
-  // DEFAULT BODY JOINTS
-  // ==========================================
+  const JOINTS = [
+    "head", "neck", "ls", "rs", "le", "re", "lw", "rw",
+    "pelvis", "lh", "rh", "lk", "rk", "la", "ra"
+  ];
 
-  const BASE = {
-    head: [130, 53],
-    neck: [130, 84],
+  const BASE = [
+    130,53, 130,84, 110,98, 150,98,
+    94,136, 166,136, 90,169, 170,169,
+    130,170, 116,179, 144,179,
+    109,226, 151,226, 105,277, 155,277
+  ];
 
-    ls: [110, 98],
-    rs: [150, 98],
-
-    le: [94, 136],
-    re: [166, 136],
-
-    lw: [90, 169],
-    rw: [170, 169],
-
-    pelvis: [130, 170],
-
-    lh: [116, 179],
-    rh: [144, 179],
-
-    lk: [109, 226],
-    rk: [151, 226],
-
-    la: [105, 277],
-    ra: [155, 277]
+  const CACHE_PREFIX = "fitflow-motion-v1:";
+  const DEFAULT_MOTION = {
+    frames: [BASE],
+    periodMs: 2500
   };
-
-  const pose = changes => ({
-    ...BASE,
-    ...changes
-  });
-
-  // ==========================================
-  // STANDING
-  // ==========================================
-
-  const standing = pose({});
-
-  // ==========================================
-  // MARCHING LEFT
-  // ==========================================
-
-  const marchLeft = pose({
-    head: [130, 49],
-    neck: [130, 80],
-
-    ls: [110, 94],
-    rs: [150, 94],
-
-    pelvis: [130, 166],
-
-    lh: [116, 175],
-    rh: [144, 175],
-
-    lk: [110, 190],
-    la: [126, 236],
-
-    rk: [151, 223],
-    ra: [155, 277],
-
-    le: [109, 126],
-    lw: [134, 139],
-
-    re: [176, 124],
-    rw: [169, 160]
-  });
-
-  // ==========================================
-  // MARCHING RIGHT
-  // ==========================================
-
-  const marchRight = pose({
-    head: [130, 49],
-    neck: [130, 80],
-
-    ls: [110, 94],
-    rs: [150, 94],
-
-    pelvis: [130, 166],
-
-    lh: [116, 175],
-    rh: [144, 175],
-
-    lk: [109, 223],
-    la: [105, 277],
-
-    rk: [150, 190],
-    ra: [133, 236],
-
-    le: [85, 124],
-    lw: [91, 160],
-
-    re: [151, 126],
-    rw: [125, 139]
-  });
-
-  // ==========================================
-  // SQUAT
-  // ==========================================
-
-  const squat = pose({
-    head: [145, 91],
-    neck: [140, 121],
-
-    ls: [121, 132],
-    rs: [159, 132],
-
-    le: [104, 151],
-    re: [176, 151],
-
-    lw: [120, 155],
-    rw: [161, 155],
-
-    pelvis: [133, 207],
-
-    lh: [116, 212],
-    rh: [149, 212],
-
-    lk: [91, 237],
-    rk: [181, 237],
-
-    la: [101, 277],
-    ra: [181, 277]
-  });
-
-  // ==========================================
-  // JUMPING JACK
-  // ==========================================
-
-  const jumpingJack = pose({
-    head: [130, 47],
-    neck: [130, 78],
-
-    ls: [110, 98],
-    rs: [150, 98],
-
-    le: [80, 74],
-    re: [180, 74],
-
-    lw: [98, 24],
-    rw: [162, 24],
-
-    pelvis: [130, 166],
-
-    lh: [116, 179],
-    rh: [144, 179],
-
-    lk: [83, 224],
-    rk: [177, 224],
-
-    la: [56, 276],
-    ra: [204, 276]
-  });
-
-  // ==========================================
-  // STRETCH
-  // ==========================================
-
-  const stretch = pose({
-    le: [99, 61],
-    re: [161, 61],
-
-    lw: [111, 15],
-    rw: [149, 15]
-  });
-
-  // ==========================================
-  // LUNGE
-  // ==========================================
-
-  const lunge = pose({
-    head: [136, 59],
-    neck: [136, 89],
-
-    ls: [116, 101],
-    rs: [156, 101],
-
-    le: [100, 140],
-    re: [172, 140],
-
-    lw: [101, 170],
-    rw: [171, 170],
-
-    pelvis: [138, 181],
-
-    lh: [123, 186],
-    rh: [152, 186],
-
-    lk: [83, 221],
-    rk: [177, 230],
-
-    la: [82, 277],
-    ra: [210, 277]
-  });
-
-  // ==========================================
-  // LEFT PUNCH
-  // ==========================================
-
-  const punchLeft = pose({
-    head: [132, 53],
-    neck: [132, 84],
-
-    ls: [112, 98],
-    rs: [152, 98],
-
-    le: [102, 109],
-    lw: [65, 108],
-
-    re: [162, 120],
-    rw: [150, 133]
-  });
-
-  // ==========================================
-  // RIGHT PUNCH
-  // ==========================================
-
-  const punchRight = pose({
-    head: [128, 53],
-    neck: [128, 84],
-
-    ls: [108, 98],
-    rs: [148, 98],
-
-    le: [98, 120],
-    lw: [110, 133],
-
-    re: [158, 109],
-    rw: [195, 108]
-  });
-
-  // ==========================================
-  // PUSH-UP / PLANK
-  // ==========================================
-
-  const plank = pose({
-    head: [53, 178],
-    neck: [78, 177],
-
-    ls: [96, 181],
-    rs: [101, 187],
-
-    le: [100, 222],
-    re: [112, 224],
-
-    lw: [103, 271],
-    rw: [115, 271],
-
-    pelvis: [172, 183],
-
-    lh: [170, 180],
-    rh: [173, 188],
-
-    lk: [215, 184],
-    rk: [216, 193],
-
-    la: [248, 194],
-    ra: [249, 203]
-  });
-
-  const pushupDown = pose({
-    ...plank,
-
-    head: [53, 213],
-    neck: [78, 211],
-
-    ls: [96, 218],
-    rs: [101, 223],
-
-    le: [108, 242],
-    re: [119, 244],
-
-    pelvis: [172, 217],
-
-    lh: [170, 214],
-    rh: [173, 222],
-
-    lk: [215, 204],
-    rk: [216, 210]
-  });
-
-  // ==========================================
-  // EXERCISE SEQUENCES
-  // ==========================================
-
-  const sequences = {
-    march: [
-      standing,
-      marchLeft,
-      standing,
-      marchRight
-    ],
-
-    squat: [
-      standing,
-      squat
-    ],
-
-    jack: [
-      standing,
-      jumpingJack
-    ],
-
-    lunge: [
-      standing,
-      lunge
-    ],
-
-    punch: [
-      standing,
-      punchLeft,
-      standing,
-      punchRight
-    ],
-
-    stretch: [
-      standing,
-      stretch
-    ],
-
-    pushup: [
-      plank,
-      pushupDown
-    ],
-
-    gentle: [
-      standing,
-      stretch
-    ]
-  };
-
-  // ==========================================
-  // ANIMATION DURATIONS
-  // ==========================================
-
-  const durations = {
-    march: 1900,
-    squat: 2700,
-    jack: 2100,
-    lunge: 3100,
-    punch: 1600,
-    stretch: 4200,
-    pushup: 2600,
-    gentle: 5200
-  };
-
-  // ==========================================
-  // ANIMATION STATE
-  // ==========================================
-
-  let movement = "march";
-  let paused = true;
-
-  let elapsed = 0;
-  let previousFrame = 0;
 
   const reducedMotion = window.matchMedia(
     "(prefers-reduced-motion: reduce)"
   );
 
-  // ==========================================
-  // RECOGNIZE EXERCISES FROM GEMINI
-  // ==========================================
+  let current = DEFAULT_MOTION;
+  let currentName = "";
+  let paused = true;
+  let elapsed = 0;
+  let lastTimestamp = 0;
+  let requestId = 0;
 
-  function detectExercise(name) {
-    const text = String(name || "")
-      .toLowerCase();
-
-    if (/push.?up|plank/.test(text)) {
-      return "pushup";
-    }
-
+  function isValidMotion(data) {
     if (
-      /jumping jack|step jack|star jump/.test(text)
-    ) {
-      return "jack";
-    }
+      !data ||
+      !Array.isArray(data.frames) ||
+      data.frames.length < 2 ||
+      data.frames.length > 6 ||
+      !Number.isFinite(data.periodMs) ||
+      data.periodMs < 600 ||
+      data.periodMs > 8000
+    ) return false;
 
-    if (
-      /squat|sit.to.stand|chair stand/.test(text)
-    ) {
-      return "squat";
-    }
-
-    if (/lunge|split squat/.test(text)) {
-      return "lunge";
-    }
-
-    if (/punch|box|jab/.test(text)) {
-      return "punch";
-    }
-
-    if (
-      /march|walk|step|high knee|knee lift/.test(text)
-    ) {
-      return "march";
-    }
-
-    if (
-      /stretch|reach|shoulder|arm circle/.test(text)
-    ) {
-      return "stretch";
-    }
-
-    return "gentle";
+    return data.frames.every(frame =>
+      Array.isArray(frame) &&
+      frame.length === 30 &&
+      frame.every((v, i) =>
+        Number.isFinite(v) &&
+        v >= 0 &&
+        v <= (i % 2 === 0 ? 280 : 310)
+      )
+    );
   }
 
-  // ==========================================
-  // SMOOTH INTERPOLATION
-  // ==========================================
-
-  function lerp(a, b, amount) {
-    return a + (b - a) * amount;
+  function keyFor(name) {
+    return CACHE_PREFIX +
+      name.toLowerCase()
+        .trim()
+        .replace(/\s+/g, " ")
+        .slice(0, 100);
   }
 
-  function getCurrentPose() {
-    const frames = sequences[movement];
-    const duration = durations[movement];
+  function getCached(name) {
+    try {
+      const value = JSON.parse(
+        localStorage.getItem(keyFor(name))
+      );
+      return isValidMotion(value) ? value : null;
+    } catch {
+      return null;
+    }
+  }
 
-    const phase =
-      (elapsed % duration) / duration *
-      frames.length;
+  function saveCached(name, motion) {
+    try {
+      localStorage.setItem(
+        keyFor(name),
+        JSON.stringify(motion)
+      );
+    } catch {
+      // Caching is optional.
+    }
+  }
 
-    const firstIndex =
-      Math.floor(phase) % frames.length;
+  function status(message) {
+    const label = document.getElementById(
+      "animationLabel"
+    );
 
-    const nextIndex =
-      (firstIndex + 1) % frames.length;
+    if (label) label.textContent = message;
+  }
 
-    const fraction =
-      phase - Math.floor(phase);
+  function interpolate(a, b, t) {
+    return a + (b - a) * t;
+  }
 
-    // Smooth acceleration and deceleration.
+  function currentFrame() {
+    const frames = current.frames;
+
+    if (
+      frames.length === 1 ||
+      reducedMotion.matches
+    ) return frames[0];
+
+    const position =
+      (elapsed % current.periodMs) /
+      current.periodMs * frames.length;
+
+    const index =
+      Math.floor(position) % frames.length;
+
+    const next =
+      (index + 1) % frames.length;
+
+    const part =
+      position - Math.floor(position);
+
     const smooth =
-      fraction * fraction * (3 - 2 * fraction);
+      part * part * (3 - 2 * part);
 
-    const firstPose = frames[firstIndex];
-    const nextPose = frames[nextIndex];
-
-    const result = {};
-
-    for (const joint of Object.keys(BASE)) {
-      const start = firstPose[joint];
-      const end = nextPose[joint];
-
-      result[joint] = [
-        lerp(start[0], end[0], smooth),
-        lerp(start[1], end[1], smooth)
-      ];
-    }
-
-    return result;
+    return frames[index].map((v, i) =>
+      interpolate(v, frames[next][i], smooth)
+    );
   }
 
-  // ==========================================
-  // DRAW LIMBS
-  // ==========================================
-
-  function drawLimb(
-    start,
-    end,
-    width = 11,
+  function limb(
+    a,
+    b,
+    width = 10,
     color = "#6f8b48"
   ) {
     ctx.beginPath();
 
-    ctx.moveTo(start[0], start[1]);
-    ctx.lineTo(end[0], end[1]);
+    ctx.moveTo(a[0], a[1]);
+    ctx.lineTo(b[0], b[1]);
 
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
     ctx.lineCap = "round";
-
     ctx.stroke();
   }
 
-  // ==========================================
-  // DRAW JOINTS
-  // ==========================================
-
-  function drawJoint(point, radius = 5) {
-    ctx.beginPath();
-
-    ctx.arc(
-      point[0],
-      point[1],
-      radius,
-      0,
-      Math.PI * 2
+  function draw(frame) {
+    const p = Object.fromEntries(
+      JOINTS.map((name, i) => [
+        name,
+        [frame[2 * i], frame[2 * i + 1]]
+      ])
     );
 
-    ctx.fillStyle = "#6f8b48";
-    ctx.fill();
-  }
-
-  // ==========================================
-  // DRAW HUMAN FIGURE
-  // ==========================================
-
-  function drawFigure(p) {
     ctx.clearRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
+      0, 0, canvas.width, canvas.height
     );
 
-    // Background
     ctx.fillStyle = "#e7edde";
-
     ctx.fillRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
+      0, 0, canvas.width, canvas.height
     );
 
     // Floor
-    drawLimb(
+    limb(
       [20, 288],
       [260, 288],
       2,
       "#ccd7bc"
     );
 
-    const backColor = "#9cb487";
+    // Back limbs
+    const back = "#9cb487";
 
-    // Back arm
-    drawLimb(p.rs, p.re, 11, backColor);
-    drawLimb(p.re, p.rw, 9, backColor);
+    limb(p.rs, p.re, 11, back);
+    limb(p.re, p.rw, 9, back);
 
-    // Back leg
-    drawLimb(p.rh, p.rk, 15, backColor);
-    drawLimb(p.rk, p.ra, 12, backColor);
+    limb(p.rh, p.rk, 15, back);
+    limb(p.rk, p.ra, 12, back);
 
-    // Torso
-    drawLimb(
+    // Body
+    limb(
       p.neck,
       p.pelvis,
-      25,
+      24,
       "#779457"
     );
 
-    // Shoulders
-    drawLimb(
+    limb(
       p.ls,
       p.rs,
       17,
       "#779457"
     );
 
-    // Hips
-    drawLimb(p.pelvis, p.lh, 16);
-    drawLimb(p.pelvis, p.rh, 16);
+    // Legs
+    limb(p.pelvis, p.lh, 14);
+    limb(p.pelvis, p.rh, 14);
 
-    // Front leg
-    drawLimb(p.lh, p.lk, 15);
-    drawLimb(p.lk, p.la, 12);
+    limb(p.lh, p.lk, 14);
+    limb(p.lk, p.la, 11);
 
     // Front arm
-    drawLimb(p.ls, p.le, 11);
-    drawLimb(p.le, p.lw, 9);
-
-    // Joint circles
-    ["le", "re", "lk", "rk"].forEach(joint => {
-      drawJoint(p[joint]);
-    });
+    limb(p.ls, p.le, 11);
+    limb(p.le, p.lw, 9);
 
     // Head
     ctx.beginPath();
@@ -602,99 +225,155 @@
     ctx.stroke();
 
     // Eyes
-    const sideView = movement === "pushup";
-
-    ctx.fillStyle = "#536d35";
     ctx.beginPath();
 
     ctx.arc(
-      p.head[0] + (sideView ? -8 : -6),
+      p.head[0] - 6,
       p.head[1] - 2,
       2,
       0,
       Math.PI * 2
     );
 
-    if (!sideView) {
-      ctx.arc(
-        p.head[0] + 6,
-        p.head[1] - 2,
-        2,
-        0,
-        Math.PI * 2
-      );
-    }
-
-    ctx.fill();
-
-    // Mouth
-    ctx.beginPath();
-
     ctx.arc(
-      p.head[0],
-      p.head[1] + 5,
-      5,
+      p.head[0] + 6,
+      p.head[1] - 2,
+      2,
       0,
-      Math.PI
+      Math.PI * 2
     );
 
-    ctx.strokeStyle = "#536d35";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    ctx.fillStyle = "#536d35";
+    ctx.fill();
   }
 
-  // ==========================================
-  // ANIMATION LOOP
-  // ==========================================
-
-  function animate(timestamp) {
-    if (!previousFrame) {
-      previousFrame = timestamp;
+  function render(timestamp) {
+    if (!lastTimestamp) {
+      lastTimestamp = timestamp;
     }
 
     const delta = Math.min(
-      50,
-      timestamp - previousFrame
+      timestamp - lastTimestamp,
+      50
     );
 
-    previousFrame = timestamp;
+    lastTimestamp = timestamp;
 
-    if (!paused && !reducedMotion.matches) {
-      elapsed += delta;
+    if (
+      !paused &&
+      !reducedMotion.matches
+    ) {
+      elapsed += Math.max(0, delta);
     }
 
-    const currentPose = getCurrentPose();
+    draw(currentFrame());
 
-    drawFigure(currentPose);
-
-    requestAnimationFrame(animate);
+    requestAnimationFrame(render);
   }
 
-  // ==========================================
-  // PUBLIC CONTROLS
-  // ==========================================
+  async function setExercise(name) {
+    currentName = String(name || "").trim();
 
-  function setExercise(exerciseName) {
-    movement = detectExercise(exerciseName);
+    const thisRequest = ++requestId;
+
     elapsed = 0;
+    current = DEFAULT_MOTION;
 
     canvas.setAttribute(
       "aria-label",
-      "Stylized " + movement +
-      " exercise demonstration"
+      `Stylized illustration of ${currentName}; not a technique tutorial`
     );
+
+    if (!currentName) {
+      status(
+        "Exercise instructions appear below"
+      );
+      return;
+    }
+
+    // First check if this exercise was
+    // previously generated.
+    const cached = getCached(currentName);
+
+    if (cached) {
+      current = cached;
+
+      status(
+        `AI movement illustration: ${currentName}`
+      );
+      return;
+    }
+
+    status(
+      `Creating movement illustration: ${currentName}...`
+    );
+
+    try {
+      const client = window.fitflowSupabase;
+
+      if (!client) {
+        throw new Error(
+          "Supabase client not ready"
+        );
+      }
+
+      // Request a new animation from Gemini.
+      const { data, error } =
+        await client.functions.invoke(
+          "generate-animation",
+          {
+            body: {
+              exercise: currentName
+            }
+          }
+        );
+
+      if (error) throw error;
+
+      if (!isValidMotion(data)) {
+        throw new Error(
+          "Invalid animation data"
+        );
+      }
+
+      saveCached(currentName, data);
+
+      // Prevent an old response from replacing
+      // a newer exercise animation.
+      if (thisRequest !== requestId) return;
+
+      current = data;
+      elapsed = 0;
+
+      status(
+        `AI movement illustration: ${currentName}`
+      );
+
+    } catch (error) {
+      console.warn(
+        "FITFLOW animation unavailable:",
+        error
+      );
+
+      if (thisRequest !== requestId) return;
+
+      current = DEFAULT_MOTION;
+
+      status(
+        "No verified animation — follow the written exercise instructions"
+      );
+    }
   }
 
-  function pauseAnimation(value) {
+  function pause(value) {
     paused = Boolean(value);
   }
 
-  // Functions called by script.js
+  // Compatible with existing script.js.
   window.fitflowAnimator = {
     setExercise,
-    pause: pauseAnimation
+    pause
   };
 
-  requestAnimationFrame(animate);
-
+  requestAnimationFrame(render);
 })();
