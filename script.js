@@ -15,7 +15,7 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
-
+window.fitflowSupabase = supabaseClient;
 const $ = id => document.getElementById(id);
 
 // Use the live website URL for email redirects.
