@@ -6,30 +6,54 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FITFLOW | Your Fitness Journey</title>
 
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- FITFLOW CSS -->
   <link rel="stylesheet" href="styles.css?v=5">
 
+  <!-- FITFLOW PWA SETTINGS -->
+  <link rel="manifest" href="./manifest.webmanifest">
+
+  <meta name="theme-color" content="#849a51">
+
+  <!-- FITFLOW APP ICON -->
+  <link rel="icon" type="image/png" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <!-- iPhone PWA Settings -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="FITFLOW">
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- FITFLOW JavaScript -->
   <script src="exercise-animator.js?v=5" defer></script>
   <script src="script.js?v=5" defer></script>
 </head>
+
 <body>
 
-  <!-- WELCOME -->
+  <!-- ========================================
+       WELCOME PAGE
+       ======================================== -->
   <section id="welcome" class="page welcome-page">
     <div class="welcome-content">
       <h1>FITFLOW</h1>
       <p>Your fitness journey starts here.</p>
+
       <button id="getStarted" type="button">
         Get Started
       </button>
     </div>
   </section>
 
-  <!-- LOGIN -->
+  <!-- ========================================
+       LOGIN PAGE
+       ======================================== -->
   <section id="login" class="page login-page" hidden>
     <div class="login-container">
       <h1>Welcome to FITFLOW</h1>
@@ -37,6 +61,7 @@
 
       <form id="loginForm">
         <label for="email">Email</label>
+
         <input
           type="email"
           id="email"
@@ -46,6 +71,7 @@
         >
 
         <label for="password">Password</label>
+
         <input
           type="password"
           id="password"
@@ -55,12 +81,16 @@
           required
         >
 
-        <button type="submit">Log In</button>
+        <button type="submit">
+          Log In
+        </button>
       </form>
 
-      <button id="forgotPassword"
-              type="button"
-              class="link-button">
+      <button
+        id="forgotPassword"
+        type="button"
+        class="link-button"
+      >
         Forgot Password?
       </button>
 
@@ -68,9 +98,11 @@
         Create Account
       </button>
 
-      <button id="backWelcome"
-              type="button"
-              class="link-button">
+      <button
+        id="backWelcome"
+        type="button"
+        class="link-button"
+      >
         ← Back
       </button>
 
@@ -78,14 +110,24 @@
     </div>
   </section>
 
-  <!-- RESET PASSWORD -->
+  <!-- ========================================
+       RESET PASSWORD PAGE
+       ======================================== -->
   <section id="reset" class="page login-page" hidden>
     <div class="login-container">
       <h1>Set a New Password</h1>
-      <p>Use the secure link from your email to reset your password.</p>
+
+      <p>
+        Use the secure link from your email
+        to reset your password.
+      </p>
 
       <form id="resetPasswordForm">
-        <label for="newPassword">New Password</label>
+
+        <label for="newPassword">
+          New Password
+        </label>
+
         <input
           id="newPassword"
           type="password"
@@ -98,6 +140,7 @@
         <label for="confirmPassword">
           Confirm New Password
         </label>
+
         <input
           id="confirmPassword"
           type="password"
@@ -116,14 +159,20 @@
     </div>
   </section>
 
-  <!-- PROFILE SETUP -->
+  <!-- ========================================
+       PROFILE SETUP
+       ======================================== -->
   <section id="setup" class="page setup-page" hidden>
     <div class="setup-container">
       <h1>Let's Set Up Your Profile</h1>
       <p>Tell us a little about your fitness goals.</p>
 
       <form id="setupForm">
-        <label for="userName">What should we call you?</label>
+
+        <label for="userName">
+          What should we call you?
+        </label>
+
         <input
           id="userName"
           type="text"
@@ -131,204 +180,451 @@
           required
         >
 
-        <label for="goal">What's your main goal?</label>
+        <label for="goal">
+          What's your main goal?
+        </label>
+
         <select id="goal" required>
-          <option value="">Choose your goal</option>
-          <option value="Build muscle">Build muscle</option>
-          <option value="Lose weight">Lose weight</option>
-          <option value="Improve endurance">Improve endurance</option>
-          <option value="Stay active">Stay active</option>
+          <option value="">
+            Choose your goal
+          </option>
+
+          <option value="Build muscle">
+            Build muscle
+          </option>
+
+          <option value="Lose weight">
+            Lose weight
+          </option>
+
+          <option value="Improve endurance">
+            Improve endurance
+          </option>
+
+          <option value="Stay active">
+            Stay active
+          </option>
+
           <option value="Improve overall fitness">
             Improve overall fitness
           </option>
         </select>
 
-        <label for="fitnessLevel">Fitness level</label>
+        <label for="fitnessLevel">
+          Fitness level
+        </label>
+
         <select id="fitnessLevel" required>
-          <option value="">Choose your level</option>
-          <option value="Beginner">Beginner</option>
-          <option value="Intermediate">Intermediate</option>
-          <option value="Advanced">Advanced</option>
+          <option value="">
+            Choose your level
+          </option>
+
+          <option value="Beginner">
+            Beginner
+          </option>
+
+          <option value="Intermediate">
+            Intermediate
+          </option>
+
+          <option value="Advanced">
+            Advanced
+          </option>
         </select>
 
-        <label for="favorite">Favorite workout type</label>
+        <label for="favorite">
+          Favorite workout type
+        </label>
+
         <select id="favorite" required>
-          <option value="">Choose a workout type</option>
-          <option value="Strength">Strength</option>
-          <option value="Cardio">Cardio</option>
-          <option value="Core">Core</option>
-          <option value="Flexibility">Flexibility</option>
-          <option value="Full Body">Full Body</option>
+          <option value="">
+            Choose a workout type
+          </option>
+
+          <option value="Strength">
+            Strength
+          </option>
+
+          <option value="Cardio">
+            Cardio
+          </option>
+
+          <option value="Core">
+            Core
+          </option>
+
+          <option value="Flexibility">
+            Flexibility
+          </option>
+
+          <option value="Full Body">
+            Full Body
+          </option>
         </select>
 
-        <label for="minutes">Available workout time</label>
+        <label for="minutes">
+          Available workout time
+        </label>
+
         <select id="minutes" required>
-          <option value="">Choose a duration</option>
-          <option value="5">5 minutes</option>
-          <option value="10">10 minutes</option>
-          <option value="15">15 minutes</option>
-          <option value="20">20 minutes</option>
-          <option value="30">30 minutes</option>
-          <option value="45">45 minutes</option>
-          <option value="60">60 minutes</option>
+          <option value="">
+            Choose a duration
+          </option>
+
+          <option value="5">
+            5 minutes
+          </option>
+
+          <option value="10">
+            10 minutes
+          </option>
+
+          <option value="15">
+            15 minutes
+          </option>
+
+          <option value="20">
+            20 minutes
+          </option>
+
+          <option value="30">
+            30 minutes
+          </option>
+
+          <option value="45">
+            45 minutes
+          </option>
+
+          <option value="60">
+            60 minutes
+          </option>
         </select>
 
         <label for="limitations">
           Any limitations or movements to avoid?
         </label>
+
         <textarea
           id="limitations"
           rows="3"
           placeholder="Optional"
         ></textarea>
 
-        <button type="submit">Save Profile</button>
+        <button type="submit">
+          Save Profile
+        </button>
       </form>
     </div>
   </section>
 
-  <!-- MAIN APP -->
+  <!-- ========================================
+       MAIN FITFLOW APPLICATION
+       ======================================== -->
   <div id="app" hidden>
 
+    <!-- NAVIGATION -->
     <header class="app-header">
-      <div class="logo">FITFLOW</div>
+      <div class="logo">
+        FITFLOW
+      </div>
+
       <nav id="navigation">
-        <button type="button" data-page="home">Home</button>
-        <button type="button" data-page="workouts">Workouts</button>
-        <button type="button" data-page="progress">Progress</button>
-        <button type="button" data-page="profile">Profile</button>
+        <button type="button" data-page="home">
+          Home
+        </button>
+
+        <button type="button" data-page="workouts">
+          Workouts
+        </button>
+
+        <button type="button" data-page="progress">
+          Progress
+        </button>
+
+        <button type="button" data-page="profile">
+          Profile
+        </button>
       </nav>
     </header>
 
-    <!-- DASHBOARD -->
+    <!-- ========================================
+         HOME DASHBOARD
+         ======================================== -->
     <main id="home" class="page dashboard-page" hidden>
+
       <section class="dashboard-header">
         <h1>
           Welcome back,
           <span id="greetingName">Athlete</span>
         </h1>
-        <p>Ready to work toward your goals?</p>
+
+        <p>
+          Ready to work toward your goals?
+        </p>
       </section>
 
+      <!-- AI RECOMMENDATION -->
       <section class="recommendation-section">
-        <h2>Recommended For You</h2>
+        <h2>
+          Recommended For You
+        </h2>
 
         <div class="recommendation-card">
-          <div id="recommendIcon">💪</div>
-          <p id="recommendType">AI Recommended</p>
-          <h3 id="recommendTitle">Your Next Workout</h3>
+
+          <div id="recommendIcon">
+            💪
+          </div>
+
+          <p id="recommendType">
+            AI Recommended
+          </p>
+
+          <h3 id="recommendTitle">
+            Your Next Workout
+          </h3>
+
           <p id="recommendDetails">
             A workout selected for your goals.
           </p>
 
-          <button id="startRecommended" type="button">
+          <button
+            id="startRecommended"
+            type="button"
+          >
             Start Workout
           </button>
 
-          <button id="swapRecommended" type="button">
+          <button
+            id="swapRecommended"
+            type="button"
+          >
             Try Another ✦
           </button>
         </div>
       </section>
 
+      <!-- DAILY PROGRESS -->
       <section class="progress-overview">
-        <h2>Your Progress</h2>
+        <h2>
+          Your Progress
+        </h2>
 
         <div class="progress-card">
           <div id="progressRing" class="ring">
-            <span id="progressPercent">0%</span>
+            <span id="progressPercent">
+              0%
+            </span>
           </div>
-          <p>Daily Progress</p>
+
+          <p>
+            Daily Progress
+          </p>
         </div>
 
         <div class="stats-grid">
+
           <div class="stat-card">
-            <h3 id="progressMinutes">0</h3>
-            <p>Minutes Today</p>
+            <h3 id="progressMinutes">
+              0
+            </h3>
+            <p>
+              Minutes Today
+            </p>
           </div>
+
           <div class="stat-card">
-            <h3 id="homeWorkouts">0</h3>
-            <p>Workouts</p>
+            <h3 id="homeWorkouts">
+              0
+            </h3>
+            <p>
+              Workouts
+            </p>
           </div>
+
           <div class="stat-card">
-            <h3 id="homeMinutes">0</h3>
-            <p>Total Minutes</p>
+            <h3 id="homeMinutes">
+              0
+            </h3>
+            <p>
+              Total Minutes
+            </p>
           </div>
+
           <div class="stat-card">
-            <h3 id="homeStreak">0</h3>
-            <p>Day Streak</p>
+            <h3 id="homeStreak">
+              0
+            </h3>
+            <p>
+              Day Streak
+            </p>
           </div>
+
         </div>
       </section>
 
+      <!-- HOME WORKOUT PREVIEW -->
       <section class="home-workouts-section">
-        <h2>Explore Workouts</h2>
-        <div id="homeWorkoutPreview"
-             class="workout-grid"></div>
+        <h2>
+          Explore Workouts
+        </h2>
+
+        <div
+          id="homeWorkoutPreview"
+          class="workout-grid"
+        ></div>
 
         <button id="findWorkout" type="button">
           Find a Workout
         </button>
       </section>
+
     </main>
 
-    <!-- WORKOUT EXPLORER -->
+    <!-- ========================================
+         EXPLORE WORKOUTS
+         ======================================== -->
     <main id="workouts" class="page workouts-page" hidden>
-      <section>
-        <h1>Explore Workouts</h1>
-        <p>Find a workout that fits your schedule.</p>
 
-        <label for="availableTime">Available time</label>
+      <section>
+        <h1>
+          Explore Workouts
+        </h1>
+
+        <p>
+          Find a workout that fits your schedule.
+        </p>
+
+        <label for="availableTime">
+          Available time
+        </label>
+
         <select id="availableTime">
-          <option value="all">Any duration</option>
-          <option value="5">5 minutes</option>
-          <option value="10">10 minutes</option>
-          <option value="15">15 minutes</option>
-          <option value="20">20 minutes</option>
-          <option value="30">30 minutes</option>
-          <option value="45">45 minutes</option>
-          <option value="60">60 minutes</option>
+          <option value="all">
+            Any duration
+          </option>
+
+          <option value="5">
+            5 minutes
+          </option>
+
+          <option value="10">
+            10 minutes
+          </option>
+
+          <option value="15">
+            15 minutes
+          </option>
+
+          <option value="20">
+            20 minutes
+          </option>
+
+          <option value="30">
+            30 minutes
+          </option>
+
+          <option value="45">
+            45 minutes
+          </option>
+
+          <option value="60">
+            60 minutes
+          </option>
         </select>
 
-        <button id="updateWorkouts" type="button">
+        <button
+          id="updateWorkouts"
+          type="button"
+        >
           Generate AI Workouts ✦
         </button>
 
+        <!-- WORKOUT FILTERS -->
         <div class="workout-filters">
-          <button class="chip selected"
-                  type="button"
-                  data-filter="all">All</button>
-          <button class="chip" type="button"
-                  data-filter="Strength">Strength</button>
-          <button class="chip" type="button"
-                  data-filter="Cardio">Cardio</button>
-          <button class="chip" type="button"
-                  data-filter="Core">Core</button>
-          <button class="chip" type="button"
-                  data-filter="Flexibility">Flexibility</button>
-          <button class="chip" type="button"
-                  data-filter="Full Body">Full Body</button>
+
+          <button
+            class="chip selected"
+            type="button"
+            data-filter="all"
+          >
+            All
+          </button>
+
+          <button
+            class="chip"
+            type="button"
+            data-filter="Strength"
+          >
+            Strength
+          </button>
+
+          <button
+            class="chip"
+            type="button"
+            data-filter="Cardio"
+          >
+            Cardio
+          </button>
+
+          <button
+            class="chip"
+            type="button"
+            data-filter="Core"
+          >
+            Core
+          </button>
+
+          <button
+            class="chip"
+            type="button"
+            data-filter="Flexibility"
+          >
+            Flexibility
+          </button>
+
+          <button
+            class="chip"
+            type="button"
+            data-filter="Full Body"
+          >
+            Full Body
+          </button>
         </div>
 
-        <div id="workoutList" class="workout-grid"></div>
+        <!-- AI WORKOUT CARDS -->
+        <div
+          id="workoutList"
+          class="workout-grid"
+        ></div>
       </section>
     </main>
 
-    <!-- ACTIVE WORKOUT -->
+    <!-- ========================================
+         ACTIVE WORKOUT SESSION
+         ======================================== -->
     <main id="session" class="page session-page" hidden>
+
       <section class="session-container">
 
         <button id="exitWorkout" type="button">
           ← Exit Workout
         </button>
 
-        <h1 id="sessionTitle">Workout</h1>
-        <p id="sessionStep">Exercise 1</p>
+        <h1 id="sessionTitle">
+          Workout
+        </h1>
+
+        <p id="sessionStep">
+          Exercise 1
+        </p>
 
         <div class="exercise-display">
 
-          <!-- HUMAN-MOTION CANVAS -->
-          <div id="figureStage" class="exercise-art">
+          <!-- EXERCISE ANIMATION -->
+          <div
+            id="figureStage"
+            class="exercise-art"
+          >
             <canvas
               id="exerciseCanvas"
               width="280"
@@ -349,77 +645,164 @@
           <p id="exerciseInfo">
             Exercise instructions
           </p>
+
         </div>
 
-        <div id="timerDisplay">00:00</div>
+        <!-- TIMER -->
+        <div id="timerDisplay">
+          00:00
+        </div>
 
+        <!-- WORKOUT CONTROLS -->
         <div class="session-controls">
-          <button id="pauseWorkout" type="button">
+
+          <button
+            id="pauseWorkout"
+            type="button"
+          >
             Pause
           </button>
-          <button id="nextExercise" type="button">
+
+          <button
+            id="nextExercise"
+            type="button"
+          >
             Next Exercise
           </button>
-          <button id="finishWorkout" type="button">
+
+          <button
+            id="finishWorkout"
+            type="button"
+          >
             Finish Workout
           </button>
-        </div>
 
+        </div>
       </section>
     </main>
 
-    <!-- PROGRESS -->
+    <!-- ========================================
+         PROGRESS PAGE
+         ======================================== -->
     <main id="progress" class="page progress-page" hidden>
+
       <section>
-        <h1>Your Progress</h1>
-        <p>Track your fitness journey.</p>
+        <h1>
+          Your Progress
+        </h1>
+
+        <p>
+          Track your fitness journey.
+        </p>
 
         <div class="stats-grid">
+
           <div class="stat-card">
-            <h2 id="totalWorkouts">0</h2>
-            <p>Total Workouts</p>
+            <h2 id="totalWorkouts">
+              0
+            </h2>
+            <p>
+              Total Workouts
+            </p>
           </div>
+
           <div class="stat-card">
-            <h2 id="totalMinutes">0</h2>
-            <p>Total Minutes</p>
+            <h2 id="totalMinutes">
+              0
+            </h2>
+            <p>
+              Total Minutes
+            </p>
           </div>
+
           <div class="stat-card">
-            <h2 id="totalStreak">0</h2>
-            <p>Day Streak</p>
+            <h2 id="totalStreak">
+              0
+            </h2>
+            <p>
+              Day Streak
+            </p>
           </div>
+
         </div>
 
-        <h2>Workout History</h2>
+        <h2>
+          Workout History
+        </h2>
+
         <div id="historyList"></div>
       </section>
+
     </main>
 
-    <!-- PROFILE -->
+    <!-- ========================================
+         PROFILE PAGE
+         ======================================== -->
     <main id="profile" class="page profile-page" hidden>
+
       <section>
-        <h1>Your Profile</h1>
+        <h1>
+          Your Profile
+        </h1>
 
         <div class="profile-card">
-          <h2 id="profileName">Your Name</h2>
+
+          <h2 id="profileName">
+            Your Name
+          </h2>
+
           <p id="profileEmail"></p>
+
           <p id="profileSummary"></p>
+
         </div>
 
-        <button id="editProfile" type="button">
+        <button
+          id="editProfile"
+          type="button"
+        >
           Edit Profile
         </button>
 
-        <button id="logout" type="button">
+        <button
+          id="logout"
+          type="button"
+        >
           Log Out
         </button>
+
       </section>
     </main>
 
   </div>
 
-  <div id="toast" class="toast"
-       role="status"
-       aria-live="polite"></div>
+  <!-- ========================================
+       NOTIFICATIONS
+       ======================================== -->
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <!-- ========================================
+       FITFLOW PWA SERVICE WORKER
+       ======================================== -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .catch(error => {
+            console.error(
+              "FITFLOW Service Worker registration failed:",
+              error
+            );
+          });
+      });
+    }
+  </script>
 
 </body>
 </html>
